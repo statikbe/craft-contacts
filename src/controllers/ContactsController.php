@@ -3,6 +3,7 @@
 namespace statikbe\contacts\controllers;
 
 use Craft;
+use craft\elements\User;
 use craft\web\Controller;
 use statikbe\contacts\Contacts;
 use yii\web\Response;
@@ -29,14 +30,10 @@ class ContactsController extends Controller
     public function actionEdit(int $elementId = null): Response
     {
         $settings = Contacts::getInstance()->getSettings();
+        $element = User::find()->id($elementId)->status(null)->one();
         return $this->asCpScreen()
-            ->contentTemplate($settings->contentTemplate)
-            ->metaSidebarTemplate($settings->sidebarTemplate)
-            ->title(Craft::t('contacts', 'Edit Contact'))
-            ->variables([
-                'elementId' => $elementId,
-                'settings' => $settings,
-            ]);
-
+            ->contentTemplate($settings->contentTemplate, ['element' => $element])
+            ->metaSidebarTemplate($settings->sidebarTemplate, ['element' => $element])
+            ->title(Craft::t('contacts', 'Edit Contact'));
     }
 }

@@ -2,7 +2,6 @@
 
 namespace statikbe\contacts\elements\db;
 
-use Craft;
 use craft\elements\db\ElementQuery;
 
 /**

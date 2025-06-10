@@ -16,7 +16,6 @@ use yii\web\Response;
  */
 class Contact extends User
 {
-
     public static function displayName(): string
     {
         return Craft::t('contacts', 'Contact');
