@@ -1,0 +1,23 @@
+{# @var plugin \statikbe\contacts\Contacts #}
+{# @var settings \statikbe\contacts\models\Settings #}
+
+{% import '_includes/forms.twig' as forms %}
+
+{{ forms.autosuggestField({
+    label: "Main content template"|t('contacts'),
+    id: 'contentTemplate',
+    name: 'contentTemplate',
+    suggestions: craft.cp.getTemplateSuggestions(),
+    suggestEnvVars: true,
+    value: settings.contentTemplate,
+}) }}
+
+
+{{ forms.autosuggestField({
+    label: "Sidebar template"|t('contacts'),
+    id: 'sidebarTemplate',
+    name: 'sidebarTemplate',
+    suggestions: craft.cp.getTemplateSuggestions(),
+    suggestEnvVars: true,
+    value: settings.sidebarTemplate,
+}) }}

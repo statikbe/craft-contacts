@@ -1,0 +1,49 @@
+{
+  "name": "statikbe/craft-contacts",
+  "description": "Adds a crm-like layers over Craft's users",
+  "type": "craft-plugin",
+  "license": "mit",
+  "version": "1.0.0",
+  "support": {
+    "email": "support@statik.be",
+    "issues": "https://github.com/https://www.github.com/statikbe/craft-contacts/issues?state=open",
+    "source": "https://github.com/https://www.github.com/statikbe/craft-contacts",
+    "docs": "https://github.com/https://www.github.com/statikbe/craft-contacts",
+    "rss": "https://github.com/https://www.github.com/statikbe/craft-contacts/releases.atom"
+  },
+  "require": {
+    "php": ">=8.2",
+    "craftcms/cms": "^5.7.0"
+  },
+  "require-dev": {
+    "craftcms/ecs": "dev-main",
+    "craftcms/phpstan": "dev-main"
+  },
+  "autoload": {
+    "psr-4": {
+      "statikbe\\contacts\\": "src/"
+    }
+  },
+  "extra": {
+    "handle": "contacts",
+    "name": "Contacts",
+    "developer": "Statik.be",
+    "documentationUrl": "https://github.com/https://www.github.com/statikbe/craft-contacts",
+    "class": "statikbe\\contacts\\Contacts"
+  },
+  "scripts": {
+    "check-cs": "ecs check --ansi",
+    "fix-cs": "ecs check --ansi --fix",
+    "phpstan": "phpstan --memory-limit=1G"
+  },
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
+  }
+}
