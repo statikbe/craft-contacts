@@ -9,7 +9,9 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
-    public string $contentTemplate = 'contacts/_content/_detail';
+    public string|null $contentTemplate = 'contacts/_content/_detail';
 
-    public string $sidebarTemplate = 'contacts/_sidebar/_sidebar';
+    public string|null $sidebarTemplate = 'contacts/_sidebar/_sidebar';
+
+    public string|null $contactTitleFormat = '{user.email}';
 }

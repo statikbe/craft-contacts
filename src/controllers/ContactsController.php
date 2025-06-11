@@ -21,7 +21,6 @@ class ContactsController extends Controller
      */
     public function actionIndex(): Response
     {
-//        return $this->renderTemplate('contacts/_index');
         return $this->asCpScreen()
             ->contentTemplate('contacts/_index')
             ->title(Craft::t('contacts', 'Contacts'));
@@ -31,9 +30,12 @@ class ContactsController extends Controller
     {
         $settings = Contacts::getInstance()->getSettings();
         $element = User::find()->id($elementId)->status(null)->one();
+
+        $title = Craft::$app->getView()->renderObjectTemplate($settings->contactTitleFormat, $element);
+
         return $this->asCpScreen()
-            ->contentTemplate($settings->contentTemplate, ['element' => $element])
-            ->metaSidebarTemplate($settings->sidebarTemplate, ['element' => $element])
-            ->title(Craft::t('contacts', 'Edit Contact'));
+            ->contentTemplate($settings->contentTemplate ?? 'contacts/contacts/_detail', ['element' => $element])
+            ->metaSidebarTemplate($settings->sidebarTemplate ?? 'contacts/contacts/_sidebar', ['element' => $element])
+            ->title($title);
     }
 }

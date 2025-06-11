@@ -21,3 +21,13 @@
     suggestEnvVars: true,
     value: settings.sidebarTemplate,
 }) }}
+
+{{ forms.autosuggestField({
+    label: "Contact title format"|t('contacts'),
+    instructions: "This format is used to display the title of the contact's detail page."|t('contacts'),
+    id: 'contactTitleFormat',
+    name: 'contactTitleFormat',
+    suggestions: craft.cp.getTemplateSuggestions(),
+    suggestEnvVars: true,
+    value: settings.contactTitleFormat,
+}) }}
