@@ -14,4 +14,8 @@ class Settings extends Model
     public string|null $sidebarTemplate = 'contacts/_sidebar/_sidebar';
 
     public string|null $contactTitleFormat = '{user.email}';
+
+    public array $visibleTabs = [];
+
+    public array $userGroups = [];
 }

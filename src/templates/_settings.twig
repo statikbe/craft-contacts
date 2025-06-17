@@ -3,6 +3,30 @@
 
 {% import '_includes/forms.twig' as forms %}
 
+{{ forms.checkboxGroupField({
+    label: "User groups"|t('contacts'),
+    instructions: "Select which tabs should be visible in the contact detail view."|t('contacts'),
+    id: 'userGroups',
+    name: 'userGroups',
+    options: groups,
+    values: settings.userGroups,
+    checked: settings.userGroups,
+    errors: settings.getErrors('userGroups'),
+}) }}
+
+{{ forms.checkboxGroupField({
+    label: "Tabs"|t('contacts'),
+    instructions: "Select which tabs should be visible in the contact detail view."|t('contacts'),
+    id: 'visibleTabs',
+    name: 'visibleTabs',
+    options: tabs,
+    values: settings.visibleTabs,
+    checked: settings.visibleTabs,
+    errors: settings.getErrors('visibleTabs'),
+}) }}
+
+<hr>
+
 {{ forms.autosuggestField({
     label: "Main content template"|t('contacts'),
     id: 'contentTemplate',

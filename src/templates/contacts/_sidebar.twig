@@ -1,1 +1,3 @@
-sidebar
+{% hook 'cp.contacts.edit.sidebar.before' %}
+{{ meta|raw }}
+{% hook 'cp.contacts.edit.sidebar.after' %}

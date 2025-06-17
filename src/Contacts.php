@@ -15,6 +15,7 @@ use craft\web\twig\variables\Cp;
 use craft\web\UrlManager;
 use statikbe\contacts\elements\Contact;
 use statikbe\contacts\models\Settings;
+use statikbe\contacts\services\FilterService;
 use yii\base\Event;
 
 /**
@@ -25,6 +26,7 @@ use yii\base\Event;
  * @author Statik.be <support@statik.be>
  * @copyright Statik.be
  * @license MIT
+ * @property-read FilterService $filterService
  */
 class Contacts extends Plugin
 {
@@ -34,20 +36,15 @@ class Contacts extends Plugin
     public static function config(): array
     {
         return [
-            'components' => [
-                // Define component configs here...
-            ],
+            'components' => ['filterService' => FilterService::class],
         ];
     }
 
     public function init(): void
     {
         parent::init();
-
         $this->attachEventHandlers();
 
-        // Any code that creates an element query or loads Twig should be deferred until
-        // after Craft is fully initialized, to avoid conflicts with other plugins/modules
         Craft::$app->onInit(function() {
         });
     }
@@ -59,11 +56,31 @@ class Contacts extends Plugin
 
     protected function settingsHtml(): ?string
     {
+        $layout = Craft::$app->getFields()->getLayoutByType(User::class);
+        $tabs = collect($layout->getTabs())->map(function($tab) {
+            return [
+                'label' => $tab->name,
+                'value' => $tab->uid,
+            ];
+        })->values()->all();
+
+        $groups = collect(Craft::$app->getUserGroups()->getAllGroups())
+            ->map(function($group) {
+                return [
+                    'label' => $group->name,
+                    'value' => $group->uid,
+                ];
+            })->values()->all();
+
+
         return Craft::$app->view->renderTemplate('contacts/_settings.twig', [
             'plugin' => $this,
+            'tabs' => $tabs,
+            'groups' => $groups,
             'settings' => $this->getSettings(),
         ]);
     }
+
 
     private function attachEventHandlers(): void
     {
@@ -72,6 +89,16 @@ class Contacts extends Plugin
                 'url' => 'contacts',
                 'label' => 'Contacts',
                 'icon' => '@appicons/newspaper.svg',
+                'subnav' => [
+                    'allContacts' => [
+                            'url' => 'contacts',
+                            'label' => Craft::t('app', 'All Contacts'),
+                        ],
+                    'filters' => [
+                        'url' => 'contacts/filters',
+                        'label' => Craft::t('app', 'Filters'),
+                    ],
+                ],
             ];
         });
 
@@ -108,6 +135,11 @@ class Contacts extends Plugin
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['contacts'] = ['template' => 'contacts/contacts/_index.twig'];
             $event->rules['contacts/<elementId:\\d+>'] = 'contacts/contacts/edit';
+            $event->rules['contacts/filters'] = 'contacts/filter/index';
+            $event->rules['contacts/filters/edit'] = 'contacts/filter/edit';
+            $event->rules['contacts/filters/edit/<filterId:\\d+>'] = 'contacts/filter/edit';
+            $event->rules['contacts/filters/save'] = 'contacts/filter/save';
+            $event->rules['contacts/filters/delete'] = 'contacts/filter/delete';
         });
     }
 }

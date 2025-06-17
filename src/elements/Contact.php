@@ -5,7 +5,9 @@ namespace statikbe\contacts\elements;
 use Craft;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\conditions\users\UserCondition;
+use statikbe\contacts\elements\conditions\ContactCondition;
 use craft\elements\db\UserQuery;
+use statikbe\contacts\elements\db\ContactQuery;
 use craft\elements\User;
 use craft\helpers\UrlHelper;
 use craft\web\CpScreenResponseBehavior;
@@ -48,7 +50,7 @@ class Contact extends User
 
     public static function find(): UserQuery
     {
-        return Craft::createObject(UserQuery::class, [static::class]);
+        return Craft::createObject(ContactQuery::class, [static::class]);
     }
 
     public static function createCondition(): ElementConditionInterface
@@ -67,14 +69,47 @@ class Contact extends User
     }
 
 
+    /**
+     * Defines the sources that should be shown in the contact index sidebar
+     * 
+     * Creates the default "All contacts" source and adds user-defined filter sources.
+     * Filter sources are automatically generated from saved filters and appear
+     * under a "Filters" heading in the sidebar.
+     * 
+     * @param string $context The context where sources are being displayed
+     * @return array Array of source definitions
+     */
     protected static function defineSources(string $context): array
     {
-        return [
+        $sources = [
             [
                 'key' => '*',
                 'label' => Craft::t('contacts', 'All contacts'),
             ],
         ];
+
+        // Add filter sources from saved filters
+        $filterService = \statikbe\contacts\Contacts::getInstance()->filterService;
+        $filters = $filterService->getAllFiltersForUser();
+
+        if (!empty($filters)) {
+            // Add heading for filter section
+            $sources[] = ['heading' => Craft::t('contacts', 'Filters')];
+            
+            // Add each filter as a source
+            foreach ($filters as $filter) {
+                $sources[] = [
+                    'key' => 'filter:' . $filter->id,
+                    'label' => $filter->label,
+                    'criteria' => [
+                        'filter' => $filter->id,
+                    ],
+                    'defaultSort' => ['username', 'asc'],
+                ];
+            }
+        }
+
+        return $sources;
     }
 
     protected static function defineActions(string $source): array

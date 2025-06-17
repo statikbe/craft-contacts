@@ -1,1 +1,5 @@
-detail
+{{ hiddenInput('elementId', element.id) }}
+
+{{ form.render()|raw }}
+
+{% hook 'cp.contacts.edit.detail' %}
