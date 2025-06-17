@@ -47,16 +47,16 @@ class ContactsController extends Controller
             'element' => $element,
             'form' => $form,
         ];
-
+        
         return $this->asCpScreen()
-            ->contentTemplate($settings->contentTemplate ?? 'contacts/contacts/_detail', $variables)
+            ->contentTemplate('contacts/contacts/_detail', $variables)
             ->action('contacts/contacts/save')
             ->addAltAction(Craft::t('app', 'Save and continue editing'), [
                 'redirect' => "contacts/{$element->id}",
                 'shortcut' => true,
                 'retainScroll' => true,
             ])
-            ->metaSidebarTemplate($settings->sidebarTemplate ?? 'contacts/contacts/_sidebar', ['element' => $element, 'meta' => $meta])
+            ->metaSidebarTemplate('contacts/contacts/_sidebar', ['element' => $element, 'meta' => $meta])
             ->title($title);
     }
 
