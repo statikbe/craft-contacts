@@ -1,5 +1,6 @@
 {% extends "_layouts/cp" %}
 {% set title = title ?? "Contact Filters"|t('contacts') %}
+{% set selectedSubnavItem = 'filters' %}
 
 {# Register the AdminTable asset bundle #}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') %}
