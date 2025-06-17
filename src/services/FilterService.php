@@ -3,6 +3,8 @@
 namespace statikbe\contacts\services;
 
 use Craft;
+use craft\elements\conditions\users\UserCondition;
+use craft\helpers\Json;
 use statikbe\contacts\elements\db\ContactQuery;
 use statikbe\contacts\models\FilterModel;
 use statikbe\contacts\records\FilterRecord;
@@ -300,6 +302,10 @@ class FilterService extends Component
     {
         $model = new FilterModel();
         $model->setAttributes($record->getAttributes(), true);
+        $condition = new UserCondition();
+        $config = Json::decodeIfJson($record->conditionConfig);
+        $condition->setConditionRules($config['conditionRules'] ?? []);
+        $model->condition = $condition;
 
         // Explicitly ensure the ID is transferred from the record
         $model->id = $record->id;

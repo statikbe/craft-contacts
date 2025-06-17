@@ -32,7 +32,6 @@
                 mainTag: 'div',
                 id: 'condition',
                 name: 'condition'
-
             }, false) %}
 
             {{ forms.field({
@@ -42,12 +41,12 @@
             }, condition.getBuilderHtml()) }}
 
             {# Debug info #}
-{#            {% if filter.conditionConfig %}#}
-{#                <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 11px;">#}
-{#                    <strong>Debug - Stored condition config:</strong><br>#}
-{#                    {{ filter.conditionConfig }}#}
-{#                </div>#}
-{#            {% endif %}#}
+            {% if filter.conditionConfig and currentUser.admin %}
+                <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 11px;">
+                    <strong>Debug - Stored condition config:</strong><br>
+                    {{ filter.conditionConfig }}
+                </div>
+            {% endif %}
         </div>
 
         <div class="buttons">
