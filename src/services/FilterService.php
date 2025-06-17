@@ -3,8 +3,6 @@
 namespace statikbe\contacts\services;
 
 use Craft;
-use craft\elements\conditions\ElementConditionInterface;
-use craft\helpers\Json;
 use statikbe\contacts\elements\db\ContactQuery;
 use statikbe\contacts\models\FilterModel;
 use statikbe\contacts\records\FilterRecord;
@@ -158,10 +156,10 @@ class FilterService extends Component
 
     /**
      * Apply a filter's condition to an element query
-     * 
+     *
      * Retrieves the filter's condition and applies its rules to modify the query.
      * This method handles the actual query modification using Craft's condition system.
-     * 
+     *
      * @param mixed $query The element query to modify
      * @param FilterModel $filter The filter whose condition should be applied
      * @return mixed The modified query
@@ -178,10 +176,10 @@ class FilterService extends Component
 
     /**
      * Apply a filter to an element query by filter ID
-     * 
+     *
      * Convenience method that retrieves a filter by ID and applies its condition
      * to the provided query. Used primarily by ContactQuery.beforePrepare().
-     * 
+     *
      * @param mixed $query The element query to modify
      * @param int $filterId The ID of the filter to apply
      * @return mixed The modified query
@@ -207,11 +205,11 @@ class FilterService extends Component
 
     /**
      * Create a FilterModel from a FilterRecord
-     * 
+     *
      * Converts a database record into a FilterModel instance with all attributes
      * properly transferred. The model will handle condition restoration from the
      * stored configuration when getCondition() is called.
-     * 
+     *
      * @param FilterRecord $record The database record to convert
      * @return FilterModel The configured FilterModel instance
      */

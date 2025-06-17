@@ -24,10 +24,10 @@ class FilterModel extends Model
 
     /**
      * Get the ElementCondition instance for this filter
-     * 
+     *
      * Creates and configures an ElementCondition from the stored configuration.
      * The condition is cached after first creation for performance.
-     * 
+     *
      * @return ElementConditionInterface|null The configured condition instance
      */
     public function getCondition(): ?ElementConditionInterface
@@ -76,11 +76,11 @@ class FilterModel extends Model
 
     /**
      * Create a new UserCondition instance for Contact elements
-     * 
+     *
      * Creates a UserCondition which is compatible with Contact elements
      * since Contact extends User. This condition can then be configured
      * with specific rules and used to filter contact queries.
-     * 
+     *
      * @return UserCondition A new UserCondition instance
      */
     public function createCondition(): UserCondition

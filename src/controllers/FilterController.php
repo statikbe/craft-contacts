@@ -3,9 +3,6 @@
 namespace statikbe\contacts\controllers;
 
 use Craft;
-use craft\console\User;
-use craft\helpers\Cp;
-use craft\helpers\Json;
 use craft\web\Controller;
 use statikbe\contacts\Contacts;
 use statikbe\contacts\models\FilterModel;
@@ -78,7 +75,6 @@ class FilterController extends Controller
             if (!$filter) {
                 throw new NotFoundHttpException('Filter not found');
             }
-
         } else {
             $filter = new FilterModel();
         }
