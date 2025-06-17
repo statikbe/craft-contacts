@@ -4,12 +4,6 @@
 {# Register the AdminTable asset bundle #}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') %}
 
-{% block actionButton %}
-    <div class="btngroup">
-        <a href="{{ cpUrl('contacts/filters/edit') }}" class="btn submit add icon">{{ "New filter"|t('contacts') }}</a>
-    </div>
-{% endblock %}
-
 {% block content %}
     {# Mount point for VueAdminTable #}
     <div id="filters-admin-table"></div>
@@ -54,8 +48,8 @@ new Craft.VueAdminTable({
             }
         },
         {
-            name: '__slot:menu',
-            title: ''
+            name: 'owner',
+            title: '{{ "Owner"|t('contacts') }}'
         }
     ],
     buttons: [

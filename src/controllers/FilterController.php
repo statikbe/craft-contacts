@@ -59,27 +59,19 @@ class FilterController extends Controller
         $data = [];
         foreach ($result['models'] as $filter) {
             $editUrl = \craft\helpers\UrlHelper::cpUrl('contacts/filters/edit/' . $filter->id);
+            $owner = $filter->getOwner();
             
             $data[] = [
                 'id' => $filter->id,
+                'name' => $filter->label, // VueAdminTable uses 'name' for delete confirmations
                 'title' => $filter->label,
                 'url' => $editUrl,
                 'status' => true, // Always enabled for title column
                 'label' => $filter->label,
                 'shared' => $filter->shared,
+                'owner' => $owner ? $owner->fullName : Craft::t('contacts', 'System'),
                 'canEdit' => $filter->canEdit(),
                 'canDelete' => $filter->canDelete(),
-                'menu' => $filter->canEdit() ? [
-                    'showItems' => true,
-                    'menuBtnTitle' => Craft::t('app', 'Actions'),
-                    'label' => Craft::t('app', 'Actions'),
-                    'items' => [
-                        [
-                            'label' => Craft::t('app', 'Edit'),
-                            'url' => $editUrl
-                        ]
-                    ]
-                ] : null,
             ];
         }
         
@@ -179,31 +171,62 @@ class FilterController extends Controller
         $this->requirePostRequest();
         
         $request = Craft::$app->getRequest();
-        $filterId = $request->getRequiredBodyParam('id');
         
-        $filter = Contacts::getInstance()->filterService->getFilterById($filterId);
-        if (!$filter) {
-            throw new NotFoundHttpException('Filter not found');
+        // VueAdminTable can send either 'id' or 'ids' (for bulk delete)
+        $filterId = $request->getBodyParam('id');
+        $filterIds = $request->getBodyParam('ids');
+        
+        if ($filterId) {
+            // Single delete
+            $ids = [$filterId];
+        } elseif ($filterIds) {
+            // Bulk delete
+            $ids = is_array($filterIds) ? $filterIds : [$filterIds];
+        } else {
+            throw new \yii\web\BadRequestHttpException('No filter ID provided');
         }
         
-        if (!$filter->canDelete()) {
-            throw new ForbiddenHttpException('User not permitted to delete this filter');
-        }
-
-        if (Contacts::getInstance()->filterService->deleteFilter($filter)) {
-            if ($request->getAcceptsJson()) {
-                return $this->asJson(['success' => true]);
+        $deletedCount = 0;
+        $errors = [];
+        
+        foreach ($ids as $id) {
+            $filter = Contacts::getInstance()->filterService->getFilterById($id);
+            if (!$filter) {
+                $errors[] = "Filter with ID {$id} not found";
+                continue;
             }
             
-            $this->setSuccessFlash(Craft::t('contacts', 'Filter deleted.'));
-            return $this->redirectToPostedUrl();
+            if (!$filter->canDelete()) {
+                $errors[] = "Not permitted to delete filter '{$filter->label}'";
+                continue;
+            }
+
+            if (Contacts::getInstance()->filterService->deleteFilter($filter)) {
+                $deletedCount++;
+            } else {
+                $errors[] = "Failed to delete filter '{$filter->label}'";
+            }
         }
 
         if ($request->getAcceptsJson()) {
-            return $this->asJson(['success' => false]);
+            if (count($errors) > 0) {
+                return $this->asJson([
+                    'success' => false,
+                    'errors' => $errors,
+                    'deleted' => $deletedCount
+                ]);
+            }
+            return $this->asJson(['success' => true, 'deleted' => $deletedCount]);
         }
         
-        $this->setFailFlash(Craft::t('contacts', 'Couldn\'t delete filter.'));
+        if ($deletedCount > 0) {
+            $this->setSuccessFlash(Craft::t('contacts', '{count} filter(s) deleted.', ['count' => $deletedCount]));
+        }
+        
+        if (count($errors) > 0) {
+            $this->setFailFlash(implode(', ', $errors));
+        }
+        
         return $this->redirectToPostedUrl();
     }
 }
