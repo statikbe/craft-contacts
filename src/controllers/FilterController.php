@@ -23,11 +23,69 @@ class FilterController extends Controller
      */
     public function actionIndex(): Response
     {
-        $filters = Contacts::getInstance()->filterService->getAllFiltersForUser(true);
-        
         return $this->renderTemplate('contacts/filters/_index', [
-            'filters' => $filters,
             'title' => Craft::t('contacts', 'Filters'),
+        ]);
+    }
+
+    /**
+     * Data API endpoint for VueAdminTable
+     * 
+     * Returns paginated filter data in JSON format for the VueAdminTable component.
+     * Supports search and sorting functionality.
+     */
+    public function actionData(): Response
+    {
+        $this->requireAcceptsJson();
+        
+        $request = Craft::$app->getRequest();
+        
+        // Get pagination parameters
+        $page = (int)$request->getQueryParam('page', 1);
+        $perPage = (int)$request->getQueryParam('per_page', 20);
+        $search = $request->getQueryParam('search');
+        $sort = $request->getQueryParam('sort');
+        
+        // Get paginated data from service
+        $result = Contacts::getInstance()->filterService->getAllFiltersForUserPaginated(
+            $page,
+            $perPage,
+            $search,
+            $sort,
+            true
+        );
+        
+        // Format data for VueAdminTable
+        $data = [];
+        foreach ($result['models'] as $filter) {
+            $editUrl = \craft\helpers\UrlHelper::cpUrl('contacts/filters/edit/' . $filter->id);
+            
+            $data[] = [
+                'id' => $filter->id,
+                'title' => $filter->label,
+                'url' => $editUrl,
+                'status' => true, // Always enabled for title column
+                'label' => $filter->label,
+                'shared' => $filter->shared,
+                'canEdit' => $filter->canEdit(),
+                'canDelete' => $filter->canDelete(),
+                'menu' => $filter->canEdit() ? [
+                    'showItems' => true,
+                    'menuBtnTitle' => Craft::t('app', 'Actions'),
+                    'label' => Craft::t('app', 'Actions'),
+                    'items' => [
+                        [
+                            'label' => Craft::t('app', 'Edit'),
+                            'url' => $editUrl
+                        ]
+                    ]
+                ] : null,
+            ];
+        }
+        
+        return $this->asJson([
+            'pagination' => $result['pagination'],
+            'data' => $data
         ]);
     }
 

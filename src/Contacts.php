@@ -136,6 +136,7 @@ class Contacts extends Plugin
             $event->rules['contacts'] = ['template' => 'contacts/contacts/_index.twig'];
             $event->rules['contacts/<elementId:\\d+>'] = 'contacts/contacts/edit';
             $event->rules['contacts/filters'] = 'contacts/filter/index';
+            $event->rules['contacts/filters/data'] = 'contacts/filter/data';
             $event->rules['contacts/filters/edit'] = 'contacts/filter/edit';
             $event->rules['contacts/filters/edit/<filterId:\\d+>'] = 'contacts/filter/edit';
             $event->rules['contacts/filters/save'] = 'contacts/filter/save';

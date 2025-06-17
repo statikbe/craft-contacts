@@ -42,6 +42,89 @@ class FilterService extends Component
     }
 
     /**
+     * Get paginated filters for the current user with search and sorting
+     * 
+     * @param int $page Current page number (1-based)
+     * @param int $limit Number of items per page
+     * @param string|null $search Search term to filter by label
+     * @param string|null $sort Sort field and direction (e.g., 'label|asc', 'dateCreated|desc')
+     * @param bool $includeShared Whether to include shared filters
+     * @return array Array with 'models', 'total', and 'pagination' keys
+     */
+    public function getAllFiltersForUserPaginated(int $page = 1, int $limit = 20, ?string $search = null, ?string $sort = null, bool $includeShared = true): array
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+        if (!$user) {
+            return ['models' => [], 'total' => 0, 'pagination' => null];
+        }
+
+        $query = FilterRecord::find()
+            ->where(['ownerId' => $user->id]);
+
+        if ($includeShared) {
+            $query->orWhere(['shared' => true]);
+        }
+
+        // Apply search
+        if ($search) {
+            $query->andWhere(['like', 'label', $search]);
+        }
+
+        // Apply sorting
+        if ($sort && strpos($sort, '|') !== false) {
+            [$field, $direction] = explode('|', $sort);
+            $direction = strtoupper($direction) === 'DESC' ? SORT_DESC : SORT_ASC;
+            
+            switch ($field) {
+                case 'label':
+                case 'dateCreated':
+                case 'dateUpdated':
+                    $query->orderBy([$field => $direction]);
+                    break;
+                default:
+                    $query->orderBy(['label' => SORT_ASC]);
+            }
+        } else {
+            $query->orderBy(['label' => SORT_ASC]);
+        }
+
+        // Get total count for pagination
+        $total = $query->count();
+
+        // Apply pagination
+        $offset = ($page - 1) * $limit;
+        $query->offset($offset)->limit($limit);
+
+        // Convert records to models
+        $models = [];
+        foreach ($query->all() as $record) {
+            $models[] = $this->createModelFromRecord($record);
+        }
+
+        // Calculate pagination info
+        $lastPage = (int)ceil($total / $limit);
+        $from = $offset + 1;
+        $to = min($offset + $limit, $total);
+
+        $pagination = [
+            'total' => (int)$total,
+            'per_page' => (int)$limit,
+            'current_page' => (int)$page,
+            'last_page' => $lastPage,
+            'from' => $from > $total ? 0 : $from,
+            'to' => (int)$to,
+            'next_page_url' => $page < $lastPage ? '?page=' . ($page + 1) : null,
+            'prev_page_url' => $page > 1 ? '?page=' . ($page - 1) : null,
+        ];
+
+        return [
+            'models' => $models,
+            'total' => $total,
+            'pagination' => $pagination
+        ];
+    }
+
+    /**
      * Get all shared filters
      */
     public function getSharedFilters(): array

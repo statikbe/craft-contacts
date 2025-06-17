@@ -1,6 +1,9 @@
 {% extends "_layouts/cp" %}
 {% set title = title ?? "Contact Filters"|t('contacts') %}
 
+{# Register the AdminTable asset bundle #}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') %}
+
 {% block actionButton %}
     <div class="btngroup">
         <a href="{{ cpUrl('contacts/filters/edit') }}" class="btn submit add icon">{{ "New filter"|t('contacts') }}</a>
@@ -8,77 +11,63 @@
 {% endblock %}
 
 {% block content %}
-    {% set filters = filters ?? [] %}
-    <div class="tableview">
-        <table class="data fullwidth collapsible">
-            <thead>
-                <tr>
-                    <th scope="col">{{ "Name"|t('app') }}</th>
-                    <th scope="col">{{ "Conditions"|t('contacts') }}</th>
-                    <th scope="col">{{ "Owner"|t('contacts') }}</th>
-                    <th scope="col">{{ "Shared"|t('contacts') }}</th>
-                    <th scope="col">{{ "Date Created"|t('app') }}</th>
-                    <th scope="col" class="thin"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if filters|length %}
-                    {% for filter in filters %}
-                        <tr data-id="{{ filter.id }}" data-name="{{ filter.label|e('html_attr') }}">
-                            <th scope="row" data-title="{{ "Name"|t('app') }}">
-                                <a href="{{ cpUrl('contacts/filters/edit/' ~ filter.id) }}">{{ filter.label }}</a>
-                            </th>
-                            <td data-title="{{ "Conditions"|t('contacts') }}">
-                                {{ filter.conditionSummary }}
-                            </td>
-                            <td data-title="{{ "Owner"|t('contacts') }}">
-                                {% if filter.owner %}
-                                    {{ filter.owner.friendlyName ?? filter.owner.username }}
-                                {% else %}
-                                    <span class="light">{{ "System"|t('contacts') }}</span>
-                                {% endif %}
-                            </td>
-                            <td data-title="{{ "Shared"|t('contacts') }}">
-                                {% if filter.shared %}
-                                    <span class="status enabled" title="{{ "Shared"|t('contacts') }}"></span>
-                                {% else %}
-                                    <span class="status disabled" title="{{ "Private"|t('contacts') }}"></span>
-                                {% endif %}
-                            </td>
-                            <td class="thin" data-title="{{ "Actions"|t('app') }}">
-                                {% if filter.canEdit(currentUser) %}
-                                    <a class="delete icon" title="{{ 'Delete'|t('app') }}" role="button"></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="6">
-                            <p>{{ "No filters exist yet."|t('contacts') }}</p>
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-
-    {% if filters|length %}
-        <div class="buttons">
-            <div class="btngroup">
-                <button type="button" class="btn" id="delete-selected" disabled>{{ "Delete selected"|t('app') }}</button>
-            </div>
-        </div>
-    {% endif %}
+    {# Mount point for VueAdminTable #}
+    <div id="filters-admin-table"></div>
 {% endblock %}
 
 {% js %}
-    new Craft.AdminTable({
-        tableSelector: '#content table',
-        deleteAction: 'contacts/filter/delete',
-        onDeleteObject: function(id) {
-            // Remove the row from the table
-            $('#content').find('tr[data-id="' + id + '"]').remove();
+new Craft.VueAdminTable({
+    container: '#filters-admin-table',
+    tableDataEndpoint: '{{ cpUrl('contacts/filters/data') }}',
+    search: true,
+    searchPlaceholder: '{{ "Search filters…"|t('contacts') }}',
+    checkboxes: true,
+    allowMultipleSelections: true,
+    allowMultipleDeletions: true,
+    deleteAction: 'contacts/filter/delete',
+    deleteConfirmationMessage: '{{ "Are you sure you want to delete \"{name}\"?"|t('contacts') }}',
+    deleteSuccessMessage: '{{ "\"{name}\" deleted."|t('contacts') }}',
+    deleteFailMessage: '{{ "Couldn't delete \"{name}\"."|t('contacts') }}',
+    emptyMessage: '{{ "No filters exist yet."|t('contacts') }}',
+    noSearchResults: '{{ "No filters found."|t('contacts') }}',
+    perPage: 20,
+    fullPane: true,
+    itemLabels: {
+        singular: '{{ "Filter"|t('contacts') }}',
+        plural: '{{ "Filters"|t('contacts') }}'
+    },
+    columns: [
+        {
+            name: '__slot:title',
+            title: '{{ "Name"|t('app') }}',
+            sortField: 'label'
+        },
+        {
+            name: 'shared',
+            title: '{{ "Shared"|t('contacts') }}',
+            callback: function(value) {
+                if (value) {
+                    return '<span class="status enabled" title="{{ "Shared"|t('contacts') }}"></span>';
+                } else {
+                    return '<span class="status disabled" title="{{ "Private"|t('contacts') }}"></span>';
+                }
+            }
+        },
+        {
+            name: '__slot:menu',
+            title: ''
         }
-    });
+    ],
+    buttons: [
+        {
+            label: '{{ "New filter"|t('contacts') }}',
+            icon: 'plus',
+            href: '{{ cpUrl('contacts/filters/edit') }}',
+            enabled: true
+        }
+    ],
+    checkboxStatus: function(row) {
+        return row.canDelete;
+    }
+});
 {% endjs %}
