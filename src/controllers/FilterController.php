@@ -66,7 +66,7 @@ class FilterController extends Controller
                 'name' => $filter->label, // VueAdminTable uses 'name' for delete confirmations
                 'title' => $filter->label,
                 'url' => $editUrl,
-                'status' => true, // Always enabled for title column
+                // 'status' => removed to hide status indicator in title column
                 'label' => $filter->label,
                 'shared' => $filter->shared,
                 'owner' => $owner ? $owner->fullName : Craft::t('contacts', 'System'),
@@ -99,6 +99,7 @@ class FilterController extends Controller
             $title = $filter->label;
         } else {
             $filter = new FilterModel();
+            $filter->shared = true; // Default to shared
             $filter->setCondition($filter->createCondition());
             $title = Craft::t('contacts', 'Create a new filter');
         }
@@ -127,6 +128,7 @@ class FilterController extends Controller
             }
         } else {
             $filter = new FilterModel();
+            $filter->shared = true; // Default to shared for new filters
         }
 
         // Set attributes from request

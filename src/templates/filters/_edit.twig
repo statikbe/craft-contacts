@@ -13,7 +13,6 @@
         {% endif %}
         
         {{ hiddenInput('ownerId', currentUser.id) }}
-        {{ hiddenInput('shared', true) }}
 
         <div class="fields">
             {{ forms.textField({
@@ -25,6 +24,15 @@
                 required: true,
                 autofocus: true,
                 errors: filter.getErrors('label')
+            }) }}
+
+            {{ forms.lightswitchField({
+                label: "Shared"|t('contacts'),
+                instructions: "Allow other users to see and use this filter"|t('contacts'),
+                id: 'shared',
+                name: 'shared',
+                on: filter.shared ?? true,
+                errors: filter.getErrors('shared')
             }) }}
 
             {% set condition = filter.condition ?? filter.createCondition() %}
