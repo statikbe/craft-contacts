@@ -23,9 +23,19 @@ class FilterController extends Controller
      */
     public function actionIndex(): Response
     {
-        return $this->renderTemplate('contacts/filters/_index', [
-            'title' => Craft::t('contacts', 'Filters'),
-        ]);
+        return $this->asCpScreen()
+            ->contentTemplate('contacts/filters/_index')
+            ->crumbs([
+                [
+                    'label' => Craft::t('contacts', 'Contacts'),
+                    'url' => \craft\helpers\UrlHelper::cpUrl('contacts'),
+                ],
+                [
+                    'label' => Craft::t('contacts', 'Filters'),
+                    'url' => \craft\helpers\UrlHelper::cpUrl('contacts/filters'),
+                ],
+            ])
+            ->title(Craft::t('contacts', 'Filters'));
     }
 
     /**

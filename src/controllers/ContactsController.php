@@ -47,7 +47,7 @@ class ContactsController extends Controller
             'element' => $element,
             'form' => $form,
         ];
-        
+
         return $this->asCpScreen()
             ->contentTemplate('contacts/contacts/_detail', $variables)
             ->action('contacts/contacts/save')
