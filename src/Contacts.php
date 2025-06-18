@@ -68,7 +68,7 @@ class Contacts extends Plugin
             ->map(function($group) {
                 return [
                     'label' => $group->name,
-                    'value' => $group->uid,
+                    'value' => $group->id,
                 ];
             })->values()->all();
 

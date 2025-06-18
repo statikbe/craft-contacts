@@ -41,6 +41,12 @@ class ContactQuery extends UserQuery
      */
     protected function beforePrepare(): bool
     {
+        // Apply usergroup filtering from plugin settings
+        $settings = Contacts::getInstance()->getSettings();
+        if (!empty($settings->userGroups)) {
+            $this->groupId($settings->userGroups);
+        }
+
         if ($this->filter) {
             $filterService = Contacts::getInstance()->filterService;
             $filterService->applyFilterById($this, $this->filter);
