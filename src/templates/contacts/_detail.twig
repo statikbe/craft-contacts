@@ -1,5 +1,7 @@
 {{ hiddenInput('elementId', element.id) }}
 
-{{ form.render()|raw }}
+<div id="fields">
+    {{ form.render()|raw }}
+</div>
 
 {% hook 'cp.contacts.edit.detail' %}

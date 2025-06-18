@@ -96,12 +96,7 @@ class Contacts extends Plugin
                 'label' => Craft::t('app', 'Filters'),
             ],
         ];
-        $navItem = array_merge($navItem, [
-            'subnav' => $subNavs,
-        ]);
         return $navItem;
-
-
     }
 
 

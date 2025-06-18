@@ -5,6 +5,7 @@ namespace statikbe\contacts\controllers;
 use Craft;
 use craft\elements\User;
 use craft\helpers\Cp;
+use craft\web\assets\cp\CpAsset;
 use craft\web\Controller;
 use statikbe\contacts\Contacts;
 use yii\web\Response;
@@ -37,10 +38,17 @@ class ContactsController extends Controller
         // TODO: Add edit button
         // TODO: Permission level: edit access or view access?
 
-        $allowedTabs = ['CRM'];
+
+        // Register CP assets for tab functionality
+        Craft::$app->getView()->registerAssetBundle(CpAsset::class);
 
         $meta = Cp::metadataHtml($element->getMetadata());
         $layout = Craft::$app->getFields()->getLayoutByType(User::class);
+        $allowedTabs = collect($layout->tabs)->filter(function ($tab) use ($settings) {
+            return in_array($tab->uid, $settings->visibleTabs);
+        })->all();
+
+        $layout->setTabs($allowedTabs);
         $form = $layout->createForm($element);
 
         $variables = [
@@ -51,6 +59,7 @@ class ContactsController extends Controller
         return $this->asCpScreen()
             ->contentTemplate('contacts/contacts/_detail', $variables)
             ->action('contacts/contacts/save')
+            ->tabs($form->getTabMenu())
             ->addAltAction(Craft::t('app', 'Save and continue editing'), [
                 'redirect' => "contacts/{$element->id}",
                 'shortcut' => true,
