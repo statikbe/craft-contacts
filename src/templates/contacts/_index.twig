@@ -3,3 +3,8 @@
 {% set elementType = 'statikbe\\contacts\\elements\\Contact' %}
 {% set canHaveDrafts = true %}
 {% set selectedSubnavItem = 'allContacts' %}
+
+{% block actionButton %}
+    {% set buttonLabel = 'New Contact'|t('contacts') %}
+    <a href="{{ cpUrl('contacts/new') }}" class="btn submit add icon">{{ buttonLabel }}</a>
+{% endblock %}

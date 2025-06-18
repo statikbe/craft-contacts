@@ -45,7 +45,7 @@ class FilterService extends Component
 
     /**
      * Get paginated filters for the current user with search and sorting
-     * 
+     *
      * @param int $page Current page number (1-based)
      * @param int $limit Number of items per page
      * @param string|null $search Search term to filter by label
@@ -122,7 +122,7 @@ class FilterService extends Component
         return [
             'models' => $models,
             'total' => $total,
-            'pagination' => $pagination
+            'pagination' => $pagination,
         ];
     }
 

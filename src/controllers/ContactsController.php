@@ -74,4 +74,50 @@ class ContactsController extends Controller
         Craft::$app->getElements()->saveElement($user);
         return $this->redirectToPostedUrl();
     }
+
+    public function actionNew(): Response
+    {
+        return $this->asCpScreen()
+            ->contentTemplate('contacts/contacts/_new')
+            ->title(Craft::t('contacts', 'New Contact'));
+    }
+
+    public function actionCreate(): Response
+    {
+        $this->requirePostRequest();
+        $params = $this->request->getBodyParams();
+        
+        $email = $params['email'] ?? null;
+        $fullName = $params['fullName'] ?? null;
+
+        if (!$email || !$fullName) {
+            return $this->asFailure(Craft::t('contacts', 'Email and full name are required.'));
+        }
+
+        // Check if user with this email already exists
+        $existingUser = User::find()->email($email)->status(null)->one();
+        if ($existingUser) {
+            return $this->asFailure(Craft::t('contacts', 'A contact with this email address already exists.'));
+        }
+
+        // Create new inactive user
+        $user = new User();
+        $user->email = $email;
+        $user->fullName = $fullName;
+        $user->username = $email; // Use email as username
+        
+        if (Craft::$app->getElements()->saveElement($user)) {
+            // Assign to default user group if configured
+            $settings = Contacts::getInstance()->getSettings();
+            if ($settings->defaultUserGroup) {
+                Craft::$app->getUsers()->assignUserToGroups($user->id, [$settings->defaultUserGroup]);
+            }
+            
+            return $this->asSuccess(Craft::t('contacts', 'Contact created successfully.'), [
+                'redirect' => 'contacts/' . $user->id,
+            ]);
+        } else {
+            return $this->asFailure(Craft::t('contacts', 'Could not create contact.'));
+        }
+    }
 }

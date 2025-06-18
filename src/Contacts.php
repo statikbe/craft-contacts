@@ -134,6 +134,7 @@ class Contacts extends Plugin
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['contacts'] = ['template' => 'contacts/contacts/_index.twig'];
+            $event->rules['contacts/new'] = 'contacts/contacts/new';
             $event->rules['contacts/<elementId:\\d+>'] = 'contacts/contacts/edit';
             $event->rules['contacts/filters'] = 'contacts/filter/index';
             $event->rules['contacts/filters/data'] = 'contacts/filter/data';

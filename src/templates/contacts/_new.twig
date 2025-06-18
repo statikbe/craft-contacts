@@ -1,0 +1,33 @@
+{% import '_includes/forms' as forms %}
+
+<form method="post" accept-charset="UTF-8">
+    {{ csrfInput() }}
+    {{ actionInput('contacts/contacts/create') }}
+    {{ redirectInput('contacts') }}
+
+    <div class="fields">
+        {{ forms.textField({
+            label: 'Email Address'|t('contacts'),
+            instructions: 'Enter the contact\'s email address'|t('contacts'),
+            id: 'email',
+            name: 'email',
+            value: '',
+            required: true,
+            type: 'email'
+        }) }}
+
+        {{ forms.textField({
+            label: 'Full Name'|t('contacts'),
+            instructions: 'Enter the contact\'s full name'|t('contacts'),
+            id: 'fullName',
+            name: 'fullName',
+            value: '',
+            required: true
+        }) }}
+    </div>
+
+    <div class="buttons">
+        <button type="submit" class="btn submit">{{ 'Create Contact'|t('contacts') }}</button>
+        <a href="{{ url('contacts') }}" class="btn">{{ 'Cancel'|t('app') }}</a>
+    </div>
+</form>

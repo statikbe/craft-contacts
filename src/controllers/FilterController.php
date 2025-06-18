@@ -40,7 +40,7 @@ class FilterController extends Controller
 
     /**
      * Data API endpoint for VueAdminTable
-     * 
+     *
      * Returns paginated filter data in JSON format for the VueAdminTable component.
      * Supports search and sorting functionality.
      */
@@ -87,7 +87,7 @@ class FilterController extends Controller
         
         return $this->asJson([
             'pagination' => $result['pagination'],
-            'data' => $data
+            'data' => $data,
         ]);
     }
 
@@ -225,7 +225,7 @@ class FilterController extends Controller
                 return $this->asJson([
                     'success' => false,
                     'errors' => $errors,
-                    'deleted' => $deletedCount
+                    'deleted' => $deletedCount,
                 ]);
             }
             return $this->asJson(['success' => true, 'deleted' => $deletedCount]);

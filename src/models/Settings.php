@@ -18,4 +18,6 @@ class Settings extends Model
     public array $visibleTabs = [];
 
     public array $userGroups = [];
+
+    public int|null $defaultUserGroup = null;
 }

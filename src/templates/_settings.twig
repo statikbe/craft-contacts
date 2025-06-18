@@ -14,6 +14,16 @@
     errors: settings.getErrors('userGroups'),
 }) }}
 
+{{ forms.selectField({
+    label: "Default user group for new contacts"|t('contacts'),
+    instructions: "New contacts will be automatically assigned to this user group."|t('contacts'),
+    id: 'defaultUserGroup',
+    name: 'defaultUserGroup',
+    options: [{ label: 'None'|t('contacts'), value: '' }]|merge(groups),
+    value: settings.defaultUserGroup,
+    errors: settings.getErrors('defaultUserGroup'),
+}) }}
+
 {{ forms.checkboxGroupField({
     label: "Tabs"|t('contacts'),
     instructions: "Select which tabs should be visible in the contact detail view."|t('contacts'),
