@@ -11,6 +11,7 @@ use craft\helpers\UrlHelper;
 use craft\web\CpScreenResponseBehavior;
 use statikbe\contacts\elements\db\ContactQuery;
 use statikbe\contacts\elements\actions\CopyEmail;
+use statikbe\contacts\elements\actions\ExportXlsx;
 use yii\web\Response;
 
 /**
@@ -147,6 +148,7 @@ class Contact extends User
         // List any bulk element actions here
         return [
             CopyEmail::class,
+            ExportXlsx::class,
         ];
     }
 

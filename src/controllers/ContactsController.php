@@ -8,6 +8,7 @@ use craft\helpers\Cp;
 use craft\web\assets\cp\CpAsset;
 use craft\web\Controller;
 use statikbe\contacts\Contacts;
+use statikbe\contacts\elements\Contact;
 use yii\web\Response;
 
 /**
@@ -128,5 +129,41 @@ class ContactsController extends Controller
         } else {
             return $this->asFailure(Craft::t('contacts', 'Could not create contact.'));
         }
+    }
+
+    /**
+     * Export contacts to XLSX
+     */
+    public function actionExportXlsx(): Response
+    {
+        $this->requirePostRequest();
+        
+        // Get the contact IDs from the request
+        $contactIds = Craft::$app->getRequest()->getBodyParam('contactId', []);
+        
+        if (empty($contactIds)) {
+            throw new \yii\web\BadRequestHttpException('No contacts selected for export.');
+        }
+
+        // Get the contacts
+        $contacts = Contact::find()
+            ->id($contactIds)
+            ->status(null)
+            ->all();
+
+        if (empty($contacts)) {
+            throw new \yii\web\NotFoundHttpException('No contacts found for export.');
+        }
+
+        // Use the export service to generate and download the file
+        $exportService = Contacts::getInstance()->exportService;
+        $success = $exportService->exportAndDownload($contacts);
+
+        if (!$success) {
+            throw new \yii\web\ServerErrorHttpException('Failed to generate export file.');
+        }
+
+        // The response is sent by the service, so we don't need to return anything
+        return $this->response;
     }
 }

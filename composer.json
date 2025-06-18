@@ -13,7 +13,8 @@
   },
   "require": {
     "php": ">=8.2",
-    "craftcms/cms": "^5.7.0"
+    "craftcms/cms": "^5.7.0",
+    "openspout/openspout": "^4.0"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",

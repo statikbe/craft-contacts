@@ -16,6 +16,7 @@ use craft\web\UrlManager;
 use statikbe\contacts\elements\Contact;
 use statikbe\contacts\models\Settings;
 use statikbe\contacts\services\FilterService;
+use statikbe\contacts\services\ExportService;
 use yii\base\Event;
 
 /**
@@ -27,6 +28,7 @@ use yii\base\Event;
  * @copyright Statik.be
  * @license MIT
  * @property-read FilterService $filterService
+ * @property-read ExportService $exportService
  */
 class Contacts extends Plugin
 {
@@ -36,7 +38,10 @@ class Contacts extends Plugin
     public static function config(): array
     {
         return [
-            'components' => ['filterService' => FilterService::class],
+            'components' => [
+                'filterService' => FilterService::class,
+                'exportService' => ExportService::class,
+            ],
         ];
     }
 
@@ -144,6 +149,7 @@ class Contacts extends Plugin
             $event->rules['contacts/filters/edit/<filterId:\\d+>'] = 'contacts/filter/edit';
             $event->rules['contacts/filters/save'] = 'contacts/filter/save';
             $event->rules['contacts/filters/delete'] = 'contacts/filter/delete';
+            $event->rules['contacts/contacts/export-xlsx'] = 'contacts/contacts/export-xlsx';
         });
     }
 }
