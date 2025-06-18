@@ -3,9 +3,12 @@
 namespace statikbe\contacts\models;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Model;
+use craft\elements\conditions\ElementCondition;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\conditions\users\UserCondition;
+use craft\elements\User;
 use craft\helpers\Json;
 
 /**
@@ -83,9 +86,9 @@ class FilterModel extends Model
      *
      * @return UserCondition A new UserCondition instance
      */
-    public function createCondition(): UserCondition
+    public function createCondition(): ElementCondition
     {
-        return new UserCondition();
+        return new UserCondition(User::class);
     }
 
     /**
@@ -164,17 +167,6 @@ class FilterModel extends Model
         return Craft::t('contacts', '{count} conditions', ['count' => $count]);
     }
 
-    /**
-     * Apply the filter condition to a query
-     */
-    public function applyCondition($query): void
-    {
-        $condition = $this->getCondition();
-        if ($condition) {
-            $condition->modifyQuery($query);
-        }
-    }
-
     protected function defineRules(): array
     {
         return array_merge(parent::defineRules(), [
@@ -183,26 +175,9 @@ class FilterModel extends Model
             [['ownerId'], 'integer'],
             [['shared'], 'boolean'],
             [['conditionConfig'], 'string'],
-            [['conditionConfig'], 'validateConditionConfig'],
         ]);
     }
 
-    /**
-     * Validate the condition configuration
-     */
-    public function validateConditionConfig($attribute, $params): void
-    {
-        if (!empty($this->$attribute)) {
-            try {
-                $config = Json::decode($this->$attribute);
-                if (!is_array($config)) {
-                    $this->addError($attribute, Craft::t('contacts', 'Invalid condition configuration.'));
-                }
-            } catch (\Exception $e) {
-                $this->addError($attribute, Craft::t('contacts', 'Invalid JSON in condition configuration.'));
-            }
-        }
-    }
 
     /**
      * Get the attributes that should be included when converting to array
