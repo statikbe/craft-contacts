@@ -4,6 +4,7 @@ namespace statikbe\contacts\services;
 
 use Craft;
 use craft\elements\conditions\users\UserCondition;
+use craft\elements\User;
 use craft\helpers\Json;
 use statikbe\contacts\elements\db\ContactQuery;
 use statikbe\contacts\models\FilterModel;
@@ -302,7 +303,7 @@ class FilterService extends Component
     {
         $model = new FilterModel();
         $model->setAttributes($record->getAttributes(), true);
-        $condition = new UserCondition();
+        $condition = new UserCondition(User::class);
         $config = Json::decodeIfJson($record->conditionConfig);
         $condition->setConditionRules($config['conditionRules'] ?? []);
         $model->condition = $condition;
