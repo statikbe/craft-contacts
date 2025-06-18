@@ -305,7 +305,14 @@ class FilterService extends Component
         $model->setAttributes($record->getAttributes(), true);
         $condition = new UserCondition(User::class);
         $config = Json::decodeIfJson($record->conditionConfig);
-        $condition->setConditionRules($config['conditionRules'] ?? []);
+        
+        // Safely handle condition rules
+        if (is_array($config) && isset($config['conditionRules'])) {
+            $condition->setConditionRules($config['conditionRules']);
+        } else {
+            $condition->setConditionRules([]);
+        }
+        
         $model->condition = $condition;
 
         // Explicitly ensure the ID is transferred from the record

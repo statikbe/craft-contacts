@@ -89,22 +89,52 @@ class Contact extends User
 
         // Add filter sources from saved filters
         $filterService = \statikbe\contacts\Contacts::getInstance()->filterService;
-        $filters = $filterService->getAllFiltersForUser();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        
+        if ($currentUser) {
+            // Get shared and non-shared filters separately
+            $allFilters = $filterService->getAllFiltersForUser();
+            $sharedFilters = [];
+            $personalFilters = [];
+            
+            foreach ($allFilters as $filter) {
+                if ($filter->shared) {
+                    $sharedFilters[] = $filter;
+                } else {
+                    $personalFilters[] = $filter;
+                }
+            }
 
-        if (!empty($filters)) {
-            // Add heading for filter section
-            $sources[] = ['heading' => Craft::t('contacts', 'Filters')];
+            // Add personal filters section
+            if (!empty($personalFilters)) {
+                $sources[] = ['heading' => Craft::t('contacts', 'My Filters')];
+                
+                foreach ($personalFilters as $filter) {
+                    $sources[] = [
+                        'key' => 'filter:' . $filter->id,
+                        'label' => $filter->label,
+                        'criteria' => [
+                            'filter' => $filter->id,
+                        ],
+                        'defaultSort' => ['username', 'asc'],
+                    ];
+                }
+            }
 
-            // Add each filter as a source
-            foreach ($filters as $filter) {
-                $sources[] = [
-                    'key' => 'filter:' . $filter->id,
-                    'label' => $filter->label,
-                    'criteria' => [
-                        'filter' => $filter->id,
-                    ],
-                    'defaultSort' => ['username', 'asc'],
-                ];
+            // Add shared filters section
+            if (!empty($sharedFilters)) {
+                $sources[] = ['heading' => Craft::t('contacts', 'Shared Filters')];
+                
+                foreach ($sharedFilters as $filter) {
+                    $sources[] = [
+                        'key' => 'filter:' . $filter->id,
+                        'label' => $filter->label,
+                        'criteria' => [
+                            'filter' => $filter->id,
+                        ],
+                        'defaultSort' => ['username', 'asc'],
+                    ];
+                }
             }
         }
 
