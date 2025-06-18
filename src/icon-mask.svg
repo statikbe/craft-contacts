@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+     xmlns="http://www.w3.org/2000/svg">
+    <!-- Main person -->
+    <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor"
+          stroke-width="2" fill="none"/>
+
+    <!-- Second person (smaller, in background) -->
+    <circle cx="17" cy="6" r="2" stroke="currentColor" stroke-width="2" fill="none"/>
+    <path d="M21 18v-1.5a3 3 0 0 0-3-3h-1" stroke="currentColor" stroke-width="2"
+          fill="none"/>
+</svg>

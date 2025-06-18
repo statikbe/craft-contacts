@@ -45,7 +45,7 @@ class Contacts extends Plugin
         parent::init();
         $this->attachEventHandlers();
 
-        Craft::$app->onInit(function() {
+        Craft::$app->onInit(function () {
         });
     }
 
@@ -57,7 +57,7 @@ class Contacts extends Plugin
     protected function settingsHtml(): ?string
     {
         $layout = Craft::$app->getFields()->getLayoutByType(User::class);
-        $tabs = collect($layout->getTabs())->map(function($tab) {
+        $tabs = collect($layout->getTabs())->map(function ($tab) {
             return [
                 'label' => $tab->name,
                 'value' => $tab->uid,
@@ -65,7 +65,7 @@ class Contacts extends Plugin
         })->values()->all();
 
         $groups = collect(Craft::$app->getUserGroups()->getAllGroups())
-            ->map(function($group) {
+            ->map(function ($group) {
                 return [
                     'label' => $group->name,
                     'value' => $group->id,
@@ -81,38 +81,45 @@ class Contacts extends Plugin
         ]);
     }
 
+    public function getCpNavItem(): array
+    {
+        $subNavs = [];
+        $navItem = parent::getCpNavItem();
+        $navItem['label'] = Craft::t('contacts', 'Contacts');
+        $navItem['subnav'] = [
+            'allContacts' => [
+                'url' => 'contacts',
+                'label' => Craft::t('app', 'All Contacts'),
+            ],
+            'filters' => [
+                'url' => 'contacts/filters',
+                'label' => Craft::t('app', 'Filters'),
+            ],
+        ];
+        $navItem = array_merge($navItem, [
+            'subnav' => $subNavs,
+        ]);
+        return $navItem;
+
+
+    }
+
 
     private function attachEventHandlers(): void
     {
-        Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS, function(RegisterCpNavItemsEvent $event) {
-            $event->navItems[] = [
-                'url' => 'contacts',
-                'label' => 'Contacts',
-                'icon' => '@appicons/newspaper.svg',
-                'subnav' => [
-                    'allContacts' => [
-                            'url' => 'contacts',
-                            'label' => Craft::t('app', 'All Contacts'),
-                        ],
-                    'filters' => [
-                        'url' => 'contacts/filters',
-                        'label' => Craft::t('app', 'Filters'),
-                    ],
-                ],
-            ];
-        });
+
 
         Event::on(
             Elements::class,
             Elements::EVENT_REGISTER_ELEMENT_TYPES,
-            function(RegisterComponentTypesEvent $event) {
+            function (RegisterComponentTypesEvent $event) {
                 $event->types[] = Contact::class;
             });
 
         Event::on(
             FieldLayout::class,
             FieldLayout::EVENT_AFTER_VALIDATE,
-            function(Event $event) {
+            function (Event $event) {
                 /* @var FieldLayout $layout */
                 $layout = $event->sender;
                 if ($layout->getErrors()) {
@@ -132,7 +139,7 @@ class Contacts extends Plugin
             });
 
 
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function (RegisterUrlRulesEvent $event) {
             $event->rules['contacts'] = ['template' => 'contacts/contacts/_index.twig'];
             $event->rules['contacts/new'] = 'contacts/contacts/new';
             $event->rules['contacts/<elementId:\\d+>'] = 'contacts/contacts/edit';

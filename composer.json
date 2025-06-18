@@ -28,6 +28,7 @@
     "handle": "contacts",
     "name": "Contacts",
     "developer": "Statik.be",
+    "hasCpSection": true,
     "documentationUrl": "https://github.com/https://www.github.com/statikbe/craft-contacts",
     "class": "statikbe\\contacts\\Contacts"
   },
