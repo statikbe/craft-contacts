@@ -10,6 +10,7 @@ use craft\elements\User;
 use craft\helpers\UrlHelper;
 use craft\web\CpScreenResponseBehavior;
 use statikbe\contacts\elements\db\ContactQuery;
+use statikbe\contacts\elements\actions\CopyEmail;
 use yii\web\Response;
 
 /**
@@ -144,7 +145,9 @@ class Contact extends User
     protected static function defineActions(string $source): array
     {
         // List any bulk element actions here
-        return [];
+        return [
+            CopyEmail::class,
+        ];
     }
 
 
@@ -223,6 +226,16 @@ class Contact extends User
                 'url' => UrlHelper::cpUrl('contacts'),
             ],
         ]);
+    }
+
+    protected function htmlAttributes(string $context): array
+    {
+        $attributes = parent::htmlAttributes($context);
+        
+        // Add email as a data attribute for the copy email action
+        $attributes['data']['email'] = $this->email;
+        
+        return $attributes;
     }
 
     public function afterSave(bool $isNew): void
