@@ -19,51 +19,101 @@ use yii\web\Response;
  */
 class Contact extends User
 {
+    /**
+     * Returns the display name for this element type
+     *
+     * @return string
+     */
     public static function displayName(): string
     {
         return Craft::t('contacts', 'Contact');
     }
 
+    /**
+     * Returns the lowercase display name for this element type
+     *
+     * @return string
+     */
     public static function lowerDisplayName(): string
     {
         return Craft::t('contacts', 'contact');
     }
 
+    /**
+     * Returns the plural display name for this element type
+     *
+     * @return string
+     */
     public static function pluralDisplayName(): string
     {
         return Craft::t('contacts', 'Contacts');
     }
 
+    /**
+     * Returns the plural lowercase display name for this element type
+     *
+     * @return string
+     */
     public static function pluralLowerDisplayName(): string
     {
         return Craft::t('contacts', 'contacts');
     }
 
+    /**
+     * Returns the reference handle for this element type
+     *
+     * @return string|null
+     */
     public static function refHandle(): ?string
     {
         return 'contact';
     }
 
+    /**
+     * Returns whether elements of this type have URIs
+     *
+     * @return bool
+     */
     public static function hasUris(): bool
     {
         return false;
     }
 
+    /**
+     * Creates a new element query for this element type
+     *
+     * @return UserQuery
+     */
     public static function find(): UserQuery
     {
         return Craft::createObject(ContactQuery::class, [static::class]);
     }
 
+    /**
+     * Creates a new condition for this element type
+     *
+     * @return ElementConditionInterface
+     */
     public static function createCondition(): ElementConditionInterface
     {
         return Craft::createObject(UserCondition::class, [static::class]);
     }
 
+    /**
+     * Defines the table attributes for this element type
+     *
+     * @return array
+     */
     protected static function defineTableAttributes(): array
     {
         return User::defineTableAttributes();
     }
 
+    /**
+     * Returns the field layout for this element
+     *
+     * @return \craft\models\FieldLayout|null
+     */
     public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(User::class);
@@ -143,6 +193,12 @@ class Contact extends User
         return $sources;
     }
 
+    /**
+     * Defines the available actions for this element type
+     *
+     * @param string $source The source key
+     * @return array
+     */
     protected static function defineActions(string $source): array
     {
         // List any bulk element actions here
@@ -153,6 +209,11 @@ class Contact extends User
     }
 
 
+    /**
+     * Returns the preview targets for this element
+     *
+     * @return array
+     */
     protected function previewTargets(): array
     {
         $previewTargets = [];
@@ -168,6 +229,12 @@ class Contact extends User
         return $previewTargets;
     }
 
+    /**
+     * Returns whether the given user can view this element
+     *
+     * @param User $user
+     * @return bool
+     */
     public function canView(User $user): bool
     {
         if (parent::canView($user)) {

@@ -65,6 +65,9 @@ class FilterModel extends Model
 
     /**
      * Set the ElementCondition instance
+     *
+     * @param ElementConditionInterface|null $condition The condition to set
+     * @return void
      */
     public function setCondition(?ElementConditionInterface $condition): void
     {
@@ -93,6 +96,8 @@ class FilterModel extends Model
 
     /**
      * Get the filter owner (User)
+     *
+     * @return \craft\elements\User|null
      */
     public function getOwner(): ?\craft\elements\User
     {
@@ -104,6 +109,9 @@ class FilterModel extends Model
 
     /**
      * Set the filter owner
+     *
+     * @param \craft\elements\User|null $user The user to set as owner
+     * @return void
      */
     public function setOwner(?\craft\elements\User $user): void
     {
@@ -112,6 +120,9 @@ class FilterModel extends Model
 
     /**
      * Check if the current user can edit this filter
+     *
+     * @param \craft\elements\User|null $user The user to check (defaults to current user)
+     * @return bool
      */
     public function canEdit(?\craft\elements\User $user = null): bool
     {
@@ -137,6 +148,9 @@ class FilterModel extends Model
 
     /**
      * Check if the current user can delete this filter
+     *
+     * @param \craft\elements\User|null $user The user to check (defaults to current user)
+     * @return bool
      */
     public function canDelete(?\craft\elements\User $user = null): bool
     {
@@ -145,6 +159,8 @@ class FilterModel extends Model
 
     /**
      * Get a summary of the condition for display
+     *
+     * @return string
      */
     public function getConditionSummary(): string
     {

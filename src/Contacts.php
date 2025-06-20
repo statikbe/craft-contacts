@@ -7,11 +7,9 @@ use craft\base\Model;
 use craft\base\Plugin;
 use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
-use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\models\FieldLayout;
 use craft\services\Elements;
-use craft\web\twig\variables\Cp;
 use craft\web\UrlManager;
 use statikbe\contacts\elements\Contact;
 use statikbe\contacts\models\Settings;
@@ -35,6 +33,11 @@ class Contacts extends Plugin
     public string $schemaVersion = '1.0.0';
     public bool $hasCpSettings = true;
 
+    /**
+     * Returns the plugin's configuration
+     *
+     * @return array
+     */
     public static function config(): array
     {
         return [
@@ -45,20 +48,33 @@ class Contacts extends Plugin
         ];
     }
 
+    /**
+     * Initializes the plugin
+     *
+     * @return void
+     */
     public function init(): void
     {
         parent::init();
         $this->attachEventHandlers();
 
-        Craft::$app->onInit(function () {
-        });
     }
 
+    /**
+     * Creates and returns the model used to store the plugin's settings
+     *
+     * @return Model|null
+     */
     protected function createSettingsModel(): ?Model
     {
         return Craft::createObject(Settings::class);
     }
 
+    /**
+     * Returns the rendered settings HTML
+     *
+     * @return string|null
+     */
     protected function settingsHtml(): ?string
     {
         $layout = Craft::$app->getFields()->getLayoutByType(User::class);
@@ -86,9 +102,13 @@ class Contacts extends Plugin
         ]);
     }
 
+    /**
+     * Returns the CP nav item for this plugin
+     *
+     * @return array
+     */
     public function getCpNavItem(): array
     {
-        $subNavs = [];
         $navItem = parent::getCpNavItem();
         $navItem['label'] = Craft::t('contacts', 'Contacts');
         $navItem['subnav'] = [
@@ -105,6 +125,11 @@ class Contacts extends Plugin
     }
 
 
+    /**
+     * Attaches event handlers for the plugin
+     *
+     * @return void
+     */
     private function attachEventHandlers(): void
     {
 
