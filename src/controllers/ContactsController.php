@@ -173,7 +173,7 @@ class ContactsController extends Controller
         if ($user->active) {
             return $this->asFailure(Craft::t('contacts', 'This contact is already an active user.'));
         }
-
+        try {
             // Set user to pending status (they'll be activated when they complete the activation process)
             $user->pending = true;
             $user->active = false; // Ensure they're not active until they complete activation
@@ -198,7 +198,6 @@ class ContactsController extends Controller
 
             return $this->asSuccess(Craft::t('contacts', 'Contact successfully converted. An activation email has been sent to {email}.', ['email' => $user->email]));
 
-        try {
         } catch (\Exception $e) {
             return $this->asFailure(Craft::t('contacts', 'An error occurred while converting the contact: {error}', ['error' => $e->getMessage()]));
         }
