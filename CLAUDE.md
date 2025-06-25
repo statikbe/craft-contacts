@@ -108,17 +108,22 @@ src/
 ├── services/
 │   ├── FilterService.php          # Advanced filtering logic
 │   └── ExportService.php          # Export functionality
-└── templates/                     # CP templates
-    ├── _settings.twig
-    ├── contacts/
-    │   ├── _detail.twig           # Contact edit form
-    │   ├── _index.twig            # Contact listing
-    │   ├── _new.twig              # New contact form
-    │   └── _sidebar.twig          # Contact edit sidebar
-    └── filters/
-        ├── _buttons.twig
-        ├── _edit.twig             # Filter edit form
-        └── _index.twig            # Filter listing
+├── templates/                     # CP templates
+│   ├── _settings.twig
+│   ├── contacts/
+│   │   ├── _detail.twig           # Contact edit form
+│   │   ├── _index.twig            # Contact listing
+│   │   ├── _new.twig              # New contact form
+│   │   └── _sidebar.twig          # Contact edit sidebar
+│   └── filters/
+│       ├── _buttons.twig
+│       ├── _edit.twig             # Filter edit form
+│       └── _index.twig            # Filter listing
+└── translations/                  # i18n translation files
+    ├── en/
+    │   └── contacts.php           # English translations
+    └── nl/
+        └── contacts.php           # Dutch translations
 ```
 
 ## Development Patterns
