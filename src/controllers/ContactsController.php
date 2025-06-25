@@ -20,18 +20,6 @@ class ContactsController extends Controller
     protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
 
     /**
-     * Displays the contacts index page
-     *
-     * @return Response
-     */
-    public function actionIndex(): Response
-    {
-        return $this->asCpScreen()
-            ->contentTemplate('contacts/_index')
-            ->title(Craft::t('contacts', 'Contacts'));
-    }
-
-    /**
      * Displays the contact edit page
      *
      * @param int|null $elementId The contact ID to edit
@@ -65,6 +53,12 @@ class ContactsController extends Controller
             ->contentTemplate('contacts/contacts/_detail', $variables)
             ->action('contacts/contacts/save')
             ->tabs($form->getTabMenu())
+            ->crumbs([
+                [
+                    'label' => Craft::t('contacts', 'Contacts'),
+                    'url' => \craft\helpers\UrlHelper::cpUrl('contacts'),
+                ],
+            ])
             ->addAltAction(Craft::t('app', 'Save and continue editing'), [
                 'redirect' => "contacts/{$element->id}",
                 'shortcut' => true,

@@ -4,6 +4,10 @@
 {% set canHaveDrafts = true %}
 {% set selectedSubnavItem = 'allContacts' %}
 
+{% set crumbs = [
+    { label: "Contacts", url: cpUrl('contacts') },
+] %}
+
 {% block actionButton %}
     {% set buttonLabel = 'New Contact'|t('contacts') %}
     <a href="{{ cpUrl('contacts/new') }}" class="btn submit add icon">{{ buttonLabel }}</a>
