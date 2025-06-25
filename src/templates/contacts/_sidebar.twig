@@ -1,3 +1,77 @@
 {% hook 'cp.contacts.edit.sidebar.before' %}
+
+{# Convert to user button for inactive users #}
+
+{% if element and (not element.active and not element.pending) %}
+    <div class="meta">
+        <div class="field">
+            <div class="heading">
+                <label>{{ 'User Status'|t('contacts') }}</label>
+            </div>
+            <div class="input">
+                <p class="light">{{ 'This contact is currently inactive. Convert to send them an activation email with login credentials.'|t('contacts') }}</p>
+                <button type="button" class="btn" id="convert-user-btn" data-contact-id="{{ element.id }}">
+                    {{ 'Convert to User'|t('contacts') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const convertBtn = document.getElementById('convert-user-btn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', function() {
+                const contactId = this.getAttribute('data-contact-id');
+                
+                if (confirm('{{ "Are you sure you want to convert this contact to a user? They will be assigned to the default user group and sent an activation email with login instructions."|t("contacts") }}')) {
+                    // Disable button and show loading state
+                    convertBtn.disabled = true;
+                    convertBtn.textContent = '{{ "Converting..."|t("contacts") }}';
+                    
+                    // Make AJAX request
+                    fetch('/admin/actions/contacts/contacts/convert-to-user', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-Token': document.querySelector('input[name="CRAFT_CSRF_TOKEN"]').value
+                        },
+                        body: JSON.stringify({
+                            contactId: contactId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Craft.cp.displayNotice(data.message || '{{ "Contact successfully converted. Activation email sent."|t("contacts") }}');
+                            // Hide the convert section since user is now pending activation
+                            convertBtn.closest('.meta').style.display = 'none';
+                            // Optionally reload the page to update the UI
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            Craft.cp.displayError(data.message || '{{ "An error occurred while converting the contact."|t("contacts") }}');
+                            // Re-enable button
+                            convertBtn.disabled = false;
+                            convertBtn.textContent = '{{ "Convert to User"|t("contacts") }}';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Craft.cp.displayError('{{ "An error occurred while converting the contact."|t("contacts") }}');
+                        // Re-enable button
+                        convertBtn.disabled = false;
+                        convertBtn.textContent = '{{ "Convert to User"|t("contacts") }}';
+                    });
+                }
+            });
+        }
+    });
+    </script>
+{% endif %}
+
 {{ meta|raw }}
 {% hook 'cp.contacts.edit.sidebar.after' %}

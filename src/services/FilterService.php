@@ -19,6 +19,9 @@ class FilterService extends Component
 {
     /**
      * Get all filters for the current user
+     *
+     * @param bool $includeShared Whether to include shared filters
+     * @return array Array of FilterModel instances
      */
     public function getAllFiltersForUser(bool $includeShared = true): array
     {
@@ -129,13 +132,14 @@ class FilterService extends Component
 
     /**
      * Get all shared filters
+     *
+     * @return array Array of FilterModel instances
      */
     public function getSharedFilters(): array
     {
         $query = FilterRecord::find()
             ->where(['shared' => true])
-            ->orderBy(['label' => SORT_ASC]
-            );
+            ->orderBy(['label' => SORT_ASC]);
 
         $models = [];
         foreach ($query->all() as $record) {
@@ -147,6 +151,9 @@ class FilterService extends Component
 
     /**
      * Get a filter by ID
+     *
+     * @param int $id The filter ID
+     * @return FilterModel|null The filter model or null if not found
      */
     public function getFilterById(int $id): ?FilterModel
     {
@@ -160,6 +167,9 @@ class FilterService extends Component
 
     /**
      * Save a filter
+     *
+     * @param FilterModel $model The filter model to save
+     * @return bool Whether the save was successful
      */
     public function saveFilter(FilterModel $model): bool
     {
@@ -207,6 +217,9 @@ class FilterService extends Component
 
     /**
      * Delete a filter
+     *
+     * @param FilterModel $model The filter model to delete
+     * @return bool Whether the deletion was successful
      */
     public function deleteFilter(FilterModel $model): bool
     {
@@ -229,6 +242,9 @@ class FilterService extends Component
 
     /**
      * Delete a filter by ID
+     *
+     * @param int $id The filter ID to delete
+     * @return bool Whether the deletion was successful
      */
     public function deleteFilterById(int $id): bool
     {
@@ -282,6 +298,10 @@ class FilterService extends Component
 
     /**
      * Check if a user can manage a filter
+     *
+     * @param FilterModel $filter The filter to check
+     * @param \craft\elements\User|null $user The user to check (defaults to current user)
+     * @return bool Whether the user can manage the filter
      */
     public function canManageFilter(FilterModel $filter, \craft\elements\User $user = null): bool
     {

@@ -20,7 +20,9 @@ class ContactsController extends Controller
     protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
 
     /**
-     * contacts/contacts action
+     * Displays the contacts index page
+     *
+     * @return Response
      */
     public function actionIndex(): Response
     {
@@ -29,16 +31,18 @@ class ContactsController extends Controller
             ->title(Craft::t('contacts', 'Contacts'));
     }
 
+    /**
+     * Displays the contact edit page
+     *
+     * @param int|null $elementId The contact ID to edit
+     * @return Response
+     */
     public function actionEdit(int $elementId = null): Response
     {
         $settings = Contacts::getInstance()->getSettings();
         $element = User::find()->id($elementId)->status(null)->one();
 
         $title = Craft::$app->getView()->renderObjectTemplate($settings->contactTitleFormat, $element);
-
-        // TODO: Add edit button
-        // TODO: Permission level: edit access or view access?
-
 
         // Register CP assets for tab functionality
         Craft::$app->getView()->registerAssetBundle(CpAsset::class);
@@ -70,6 +74,11 @@ class ContactsController extends Controller
             ->title($title);
     }
 
+    /**
+     * Saves a contact
+     *
+     * @return Response
+     */
     public function actionSave(): Response
     {
         $this->requirePostRequest();
@@ -85,6 +94,11 @@ class ContactsController extends Controller
         return $this->redirectToPostedUrl();
     }
 
+    /**
+     * Displays the new contact page
+     *
+     * @return Response
+     */
     public function actionNew(): Response
     {
         return $this->asCpScreen()
@@ -92,6 +106,11 @@ class ContactsController extends Controller
             ->title(Craft::t('contacts', 'New Contact'));
     }
 
+    /**
+     * Creates a new contact
+     *
+     * @return Response
+     */
     public function actionCreate(): Response
     {
         $this->requirePostRequest();
@@ -128,6 +147,60 @@ class ContactsController extends Controller
             ]);
         } else {
             return $this->asFailure(Craft::t('contacts', 'Could not create contact.'));
+        }
+    }
+
+    /**
+     * Convert an inactive contact to an active user
+     */
+    public function actionConvertToUser(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        
+        $userId = $this->request->getBodyParam('contactId');
+        if (!$userId) {
+            return $this->asFailure(Craft::t('contacts', 'Contact ID is required.'));
+        }
+
+        // Get the contact
+        $user = User::find()->id($userId)->status(null)->one();
+        if (!$user) {
+            return $this->asFailure(Craft::t('contacts', 'Contact not found.'));
+        }
+
+        // Check if user is already active
+        if ($user->active) {
+            return $this->asFailure(Craft::t('contacts', 'This contact is already an active user.'));
+        }
+
+            // Set user to pending status (they'll be activated when they complete the activation process)
+            $user->pending = true;
+            $user->active = false; // Ensure they're not active until they complete activation
+            // Save the user
+            if (!Craft::$app->getElements()->saveElement($user)) {
+                $errors = implode(', ', $user->getErrorSummary(true));
+                return $this->asFailure(Craft::t('contacts', 'Could not prepare user for activation: {errors}', ['errors' => $errors]));
+            }
+
+            // Assign to default user group if configured
+            $settings = Contacts::getInstance()->getSettings();
+            if ($settings->defaultUserGroup) {
+                Craft::$app->getUsers()->assignUserToGroups($user->id, [$settings->defaultUserGroup]);
+            }
+
+            // Send activation email
+            $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
+
+            if (!$emailSent) {
+                return $this->asFailure(Craft::t('contacts', 'User was prepared for activation but the activation email could not be sent. Check your email settings.'));
+            }
+
+            return $this->asSuccess(Craft::t('contacts', 'Contact successfully converted. An activation email has been sent to {email}.', ['email' => $user->email]));
+
+        try {
+        } catch (\Exception $e) {
+            return $this->asFailure(Craft::t('contacts', 'An error occurred while converting the contact: {error}', ['error' => $e->getMessage()]));
         }
     }
 

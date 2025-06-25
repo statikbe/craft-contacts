@@ -55,6 +55,7 @@ new Craft.VueAdminTable({
     buttons: [
         {
             label: '{{ "New filter"|t('contacts') }}',
+            class: 'btn submit add icon',
             icon: 'plus',
             href: '{{ cpUrl('contacts/filters/edit') }}',
             enabled: true

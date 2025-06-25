@@ -17,6 +17,11 @@ use yii\db\ActiveQuery;
  */
 class FilterRecord extends ActiveRecord
 {
+    /**
+     * Returns the table name for this record
+     *
+     * @return string
+     */
     public static function tableName(): string
     {
         return '{{%contacts_filters}}';
@@ -24,12 +29,19 @@ class FilterRecord extends ActiveRecord
 
     /**
      * Get the owner relation (User)
+     *
+     * @return ActiveQuery
      */
     public function getOwner(): ActiveQuery
     {
         return $this->hasOne(\craft\records\User::class, ['id' => 'ownerId']);
     }
 
+    /**
+     * Returns the validation rules for this record
+     *
+     * @return array
+     */
     public function rules(): array
     {
         return [
