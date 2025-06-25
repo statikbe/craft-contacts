@@ -1,15 +1,16 @@
 {% hook 'cp.contacts.edit.sidebar.before' %}
 
-{# Convert to user button for inactive users #}
-
 {% if element and (not element.active and not element.pending) %}
     <div class="meta">
         <div class="field">
             <div class="heading">
                 <label>{{ 'User Status'|t('contacts') }}</label>
             </div>
-            <div class="input">
-                <p class="light">{{ 'This contact is currently inactive. Convert to send them an activation email with login credentials.'|t('contacts') }}</p>
+            <div class="input" style="flex-direction: column;">
+                <div>
+
+                </div>
+{#                <p class="light">{{ 'This contact is currently inactive. Convert to send them an activation email with login credentials.'|t('contacts') }}</p>#}
                 <button type="button" class="btn" id="convert-user-btn" data-contact-id="{{ element.id }}">
                     {{ 'Convert to User'|t('contacts') }}
                 </button>

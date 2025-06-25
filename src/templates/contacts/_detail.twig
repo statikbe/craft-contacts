@@ -1,7 +1,7 @@
 {{ hiddenInput('elementId', element.id) }}
-
+{% hook 'cp.contacts.edit.detail.before' %}
 <div id="fields">
     {{ form.render()|raw }}
 </div>
 
-{% hook 'cp.contacts.edit.detail' %}
+{% hook 'cp.contacts.edit.detail.after' %}
