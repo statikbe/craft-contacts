@@ -10,6 +10,8 @@ use craft\web\Controller;
 use statikbe\contacts\Contacts;
 use statikbe\contacts\elements\Contact;
 use yii\web\Response;
+use function strpos;
+use function trim;
 
 /**
  * Contacts controller
@@ -95,8 +97,25 @@ class ContactsController extends Controller
      */
     public function actionNew(): Response
     {
+        $contact = new Contact();
+        $fieldHandles = $this->request->getQueryParam('fieldHandles', []);
+        $fieldValues = $this->request->getQueryParam('fieldValues', []);
+
+        if (!empty($fieldValues) && !empty($fieldHandles)) {
+            foreach ($fieldHandles as $key => $handle) {
+               $value = $fieldValues[$key] ?? null;
+
+                if (strpos($value, '[',) === 0) {
+                    $value = trim($value, '[]');
+                    $value = [$value];
+                }
+
+               $contact->setFieldValue($handle, $value);
+            }
+        }
+
         return $this->asCpScreen()
-            ->contentTemplate('contacts/contacts/_new')
+            ->contentTemplate('contacts/contacts/_new', ['contact' => $contact])
             ->title(Craft::t('contacts', 'New Contact'));
     }
 
@@ -105,11 +124,11 @@ class ContactsController extends Controller
      *
      * @return Response
      */
-    public function actionCreate(): Response
+    public function actionCreate(): Response|null
     {
         $this->requirePostRequest();
         $params = $this->request->getBodyParams();
-        
+
         $email = $params['email'] ?? null;
         $fullName = $params['fullName'] ?? null;
 
@@ -128,14 +147,15 @@ class ContactsController extends Controller
         $user->email = $email;
         $user->fullName = $fullName;
         $user->username = $email; // Use email as username
-        
+        $user->setFieldValues($params['fields'] ?? []);
+
         if (Craft::$app->getElements()->saveElement($user)) {
             // Assign to default user group if configured
             $settings = Contacts::getInstance()->getSettings();
             if ($settings->defaultUserGroup) {
                 Craft::$app->getUsers()->assignUserToGroups($user->id, [$settings->defaultUserGroup]);
             }
-            
+
             return $this->asSuccess(Craft::t('contacts', 'Contact created successfully.'), [
                 'redirect' => 'contacts/' . $user->id,
             ]);
@@ -151,7 +171,7 @@ class ContactsController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        
+
         $userId = $this->request->getBodyParam('contactId');
         if (!$userId) {
             return $this->asFailure(Craft::t('contacts', 'Contact ID is required.'));
@@ -203,10 +223,10 @@ class ContactsController extends Controller
     public function actionExportXlsx(): Response
     {
         $this->requirePostRequest();
-        
+
         // Get the contact IDs from the request
         $contactIds = Craft::$app->getRequest()->getBodyParam('contactId', []);
-        
+
         if (empty($contactIds)) {
             throw new \yii\web\BadRequestHttpException('No contacts selected for export.');
         }
