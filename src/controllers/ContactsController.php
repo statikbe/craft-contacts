@@ -131,6 +131,7 @@ class ContactsController extends Controller
 
         $email = $params['email'] ?? null;
         $fullName = $params['fullName'] ?? null;
+        $convertUser = $params['convertUser'] === '1';
 
         if (!$email || !$fullName) {
             return $this->asFailure(Craft::t('contacts', 'Email and full name are required.'));
@@ -149,11 +150,25 @@ class ContactsController extends Controller
         $user->username = $email; // Use email as username
         $user->setFieldValues($params['fields'] ?? []);
 
+        if ($convertUser === true) {
+            $user->pending = true;
+            $user->active = false; // Ensure they're not active until they complete activation
+        }
+
         if (Craft::$app->getElements()->saveElement($user)) {
             // Assign to default user group if configured
             $settings = Contacts::getInstance()->getSettings();
             if ($settings->defaultUserGroup) {
                 Craft::$app->getUsers()->assignUserToGroups($user->id, [$settings->defaultUserGroup]);
+            }
+
+            if ($convertUser === true) {
+                // Send activation email
+                $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
+
+                if (!$emailSent) {
+                    return $this->asFailure(Craft::t('contacts', 'User was prepared for activation but the activation email could not be sent. Check your email settings.'));
+                }
             }
 
             return $this->asSuccess(Craft::t('contacts', 'Contact created successfully.'), [

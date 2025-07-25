@@ -7,7 +7,18 @@
     {{ actionInput('contacts/contacts/create') }}
     {{ redirectInput(redirect) }}
 
+    <h2>{{ 'Contact fields' | t('contacts') }}</h2>
+
     {{ contact.getFieldLayout().createForm(contact).render() | raw }}
+
+    <h2>{{ 'Extra' | t('contacts') }}</h2>
+
+    {{ forms.checkBoxField({
+        label: 'Convert contact to user'|t('contacts'),
+        instructions: 'Checking this checkbox will create a pending user for this contact and send them an activation email.'|t('contacts'),
+        id: 'convertUser',
+        name: 'convertUser',
+    }) }}
 
     <div class="buttons">
         <button type="submit" class="btn submit">{{ 'Create Contact'|t('contacts') }}</button>
