@@ -154,7 +154,7 @@ class FilterModel extends Model
      */
     public function canDelete(?\craft\elements\User $user = null): bool
     {
-        return $this->canEdit($user);
+        return true;
     }
 
     /**
