@@ -12,6 +12,7 @@ use craft\web\CpScreenResponseBehavior;
 use statikbe\contacts\elements\db\ContactQuery;
 use statikbe\contacts\elements\actions\CopyEmail;
 use statikbe\contacts\elements\actions\ExportXlsx;
+use statikbe\contacts\elements\actions\ExportAllXlsx;
 use yii\web\Response;
 
 /**
@@ -205,6 +206,7 @@ class Contact extends User
         return [
             CopyEmail::class,
             ExportXlsx::class,
+            ExportAllXlsx::class,
         ];
     }
 

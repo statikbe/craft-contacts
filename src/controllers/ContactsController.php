@@ -250,6 +250,7 @@ class ContactsController extends Controller
         $contacts = Contact::find()
             ->id($contactIds)
             ->status(null)
+            ->orderBy(['lastName' => SORT_ASC])
             ->all();
 
         if (empty($contacts)) {
@@ -259,6 +260,33 @@ class ContactsController extends Controller
         // Use the export service to generate and download the file
         $exportService = Contacts::getInstance()->exportService;
         $success = $exportService->exportAndDownload($contacts);
+
+        if (!$success) {
+            throw new \yii\web\ServerErrorHttpException('Failed to generate export file.');
+        }
+
+        // The response is sent by the service, so we don't need to return anything
+        return $this->response;
+    }
+
+    /**
+     * Export all contacts to XLSX
+     */
+    public function actionExportAllXlsx(): Response
+    {
+        $this->requirePostRequest();
+
+        // Get all contacts
+        $contacts = Contact::find()->status(null)->orderBy(['lastName' => SORT_ASC])->all();
+
+        if (empty($contacts)) {
+            throw new \yii\web\NotFoundHttpException('No contacts found for export.');
+        }
+
+        // Use the export service to generate and download the file
+        $exportService = Contacts::getInstance()->exportService;
+        $filename = 'all_contacts_export_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $success = $exportService->exportAndDownload($contacts, $filename);
 
         if (!$success) {
             throw new \yii\web\ServerErrorHttpException('Failed to generate export file.');

@@ -72,7 +72,7 @@ class ExportService extends Component
             }
 
             // Build header row
-            $headers = ['Email', 'Full Name', 'Date Created', 'Date Updated'];
+            $headers = ['Email', 'First Name', 'Last Name', 'Date Created', 'Date Updated'];
             foreach ($customFields as $field) {
                 $headers[] = $field->name;
             }
@@ -84,7 +84,8 @@ class ExportService extends Component
             foreach ($contacts as $contact) {
                 $rowData = [
                     $contact->email ?? '',
-                    $contact->fullName ?? '',
+                    $contact->firstName ?? '',
+                    $contact->lastName ?? '',
                     $contact->dateCreated ? $contact->dateCreated->format('Y-m-d H:i:s') : '',
                     $contact->dateUpdated ? $contact->dateUpdated->format('Y-m-d H:i:s') : '',
                 ];
@@ -122,6 +123,20 @@ class ExportService extends Component
     {
         if ($value === null || $value === '') {
             return '';
+        }
+
+        // Handle element queries (relations that haven't been executed yet)
+        if ($value instanceof \craft\elements\db\ElementQuery) {
+            $elements = $value->all();
+            if (empty($elements)) {
+                return '';
+            }
+            
+            $formattedValues = [];
+            foreach ($elements as $element) {
+                $formattedValues[] = $element->title ?? $element->__toString();
+            }
+            return implode(', ', $formattedValues);
         }
 
         // Handle arrays (e.g., multi-select fields, checkboxes)
