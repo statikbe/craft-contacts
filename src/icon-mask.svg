@@ -1,12 +1,3 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-     xmlns="http://www.w3.org/2000/svg">
-    <!-- Main person -->
-    <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor"
-          stroke-width="2" fill="none"/>
-
-    <!-- Second person (smaller, in background) -->
-    <circle cx="17" cy="6" r="2" stroke="currentColor" stroke-width="2" fill="none"/>
-    <path d="M21 18v-1.5a3 3 0 0 0-3-3h-1" stroke="currentColor" stroke-width="2"
-          fill="none"/>
+<svg width="36" height="40" viewBox="0 0 36 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M32 4H30V0H26V4H10V0H6V4H4C1.79 4 0 5.79 0 8V36C0 38.21 1.79 40 4 40H32C34.21 40 36 38.21 36 36V8C36 5.79 34.21 4 32 4ZM18 10C21.31 10 24 12.69 24 16C24 19.32 21.31 22 18 22C14.69 22 12 19.32 12 16C12 12.69 14.69 10 18 10ZM30 34H6V32C6 28 14 25.8 18 25.8C22 25.8 30 28 30 32V34Z" fill="black"/>
 </svg>
