@@ -1,0 +1,23 @@
+{# Get related registrations for this contact #}
+{% set relatedEntries = craft.entries()
+    .section('registrations')
+    .relatedTo(element.user)
+    .limit(10)
+    .site('*')
+    .status(null)
+    .all() %}
+
+{% if relatedEntries is not empty %}
+  {% set columns = [
+      {label: 'Title', key: 'title', link: true},
+      {label: 'Course', key: 'course', type: 'relation'},
+      {label: 'Status', key: 'registationStatus', type: 'dropdown'},
+      {label: 'Created', key: 'dateCreated', type: 'date'},
+  ] %}
+
+  {% include '_contacts/_relations/_relations-table' with {
+      title: 'Registrations',
+      columns: columns,
+      rows: relatedEntries
+  } %}
+{% endif %}

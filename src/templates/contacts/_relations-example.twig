@@ -1,0 +1,209 @@
+{#
+/**
+ * Example Usage of Relations Table Template
+ *
+ * This file demonstrates various ways to use the _relations-table.twig template
+ * to display relations on a contact or user detail page.
+ *
+ * To use this in your contact detail page, add this to _sidebar.twig or create
+ * a custom template via plugin settings.
+ */
+#}
+
+{# ========================================
+   EXAMPLE 1: Simple Element Relations
+   ======================================== #}
+
+{# Get related entries for this contact #}
+{% set relatedEntries = craft.entries()
+  .relatedTo(element)
+  .limit(10)
+  .all() %}
+
+{% if relatedEntries is not empty %}
+  {% set entryColumns = [
+    {label: 'Title', key: 'title'},
+    {label: 'Section', key: 'section'},
+    {label: 'Status', key: 'status'},
+    {label: 'Date Created', key: 'dateCreated'}
+  ] %}
+
+  {% include 'contacts/contacts/_relations-table' with {
+    title: 'Related Entries',
+    columns: entryColumns,
+    rows: relatedEntries,
+    emptyMessage: 'No related entries found.'
+  } %}
+{% endif %}
+
+
+{# ========================================
+   EXAMPLE 2: Custom Formatted Data
+   ======================================== #}
+
+{# Get Commerce orders (if Commerce is installed) #}
+{% if craft.app.plugins.isPluginEnabled('commerce') %}
+  {% set orders = craft.commerce.orders()
+    .customer(element)
+    .limit(20)
+    .all() %}
+
+  {% if orders is not empty %}
+    {# Define columns #}
+    {% set orderColumns = [
+      {label: 'Order #', key: 'reference'},
+      {label: 'Total', key: 'total'},
+      {label: 'Status', key: 'statusDisplay'},
+      {label: 'Date', key: 'date'}
+    ] %}
+
+    {# Format data for better display #}
+    {% set orderRows = [] %}
+    {% for order in orders %}
+      {% set orderRows = orderRows|merge([{
+        reference: '<a href="' ~ order.cpEditUrl ~ '">' ~ order.reference ~ '</a>',
+        total: order.totalPrice|currency(order.currency),
+        statusDisplay: '<span class="status ' ~ order.orderStatus.color ~ '"></span> ' ~ order.orderStatus,
+        date: order.dateOrdered|date('short')
+      }]) %}
+    {% endfor %}
+
+    {% include 'contacts/contacts/_relations-table' with {
+      title: 'Orders',
+      columns: orderColumns,
+      rows: orderRows
+    } %}
+  {% endif %}
+{% endif %}
+
+
+{# ========================================
+   EXAMPLE 3: Form Submissions (Formie)
+   ======================================== #}
+
+{% if craft.app.plugins.isPluginEnabled('formie') %}
+  {# Get form submissions by this contact #}
+  {% set submissions = craft.formie.submissions()
+    .form('contactForm')
+    .email(element.email)
+    .limit(10)
+    .all() %}
+
+  {% if submissions is not empty %}
+    {% set submissionColumns = [
+      {label: 'Form', key: 'form'},
+      {label: 'Status', key: 'status'},
+      {label: 'Submitted', key: 'dateCreated'}
+    ] %}
+
+    {% include 'contacts/contacts/_relations-table' with {
+      title: 'Form Submissions',
+      columns: submissionColumns,
+      rows: submissions,
+      emptyMessage: 'No form submissions found.'
+    } %}
+  {% endif %}
+{% endif %}
+
+
+{# ========================================
+   EXAMPLE 4: Custom Relationship Data
+   ======================================== #}
+
+{# Example: Activity log or custom tracking #}
+{% set activities = [
+  {
+    action: 'Registered for event',
+    event: 'Summer Workshop 2024',
+    date: '2024-06-15',
+    status: 'Confirmed'
+  },
+  {
+    action: 'Downloaded resource',
+    event: 'Marketing Whitepaper',
+    date: '2024-05-10',
+    status: 'Completed'
+  }
+] %}
+
+{% if activities is not empty %}
+  {% set activityColumns = [
+    {label: 'Action', key: 'action'},
+    {label: 'Item', key: 'event'},
+    {label: 'Date', key: 'date'},
+    {label: 'Status', key: 'status'}
+  ] %}
+
+  {% include 'contacts/contacts/_relations-table' with {
+    title: 'Recent Activity',
+    columns: activityColumns,
+    rows: activities,
+    showCount: true
+  } %}
+{% endif %}
+
+
+{# ========================================
+   EXAMPLE 5: User Group Memberships
+   ======================================== #}
+
+{% set userGroups = element.groups.all() %}
+
+{% if userGroups is not empty %}
+  {% set groupRows = [] %}
+  {% for group in userGroups %}
+    {% set groupRows = groupRows|merge([{
+      name: group.name,
+      handle: '<code>' ~ group.handle ~ '</code>',
+      description: group.description ?? '-'
+    }]) %}
+  {% endfor %}
+
+  {% set groupColumns = [
+    {label: 'Group', key: 'name'},
+    {label: 'Handle', key: 'handle'},
+    {label: 'Description', key: 'description'}
+  ] %}
+
+  {% include 'contacts/contacts/_relations-table' with {
+    title: 'User Groups',
+    columns: groupColumns,
+    rows: groupRows
+  } %}
+{% endif %}
+
+
+{# ========================================
+   EXAMPLE 6: Related Assets
+   ======================================== #}
+
+{% set relatedAssets = craft.assets()
+  .relatedTo(element)
+  .kind(['image', 'pdf'])
+  .limit(10)
+  .all() %}
+
+{% if relatedAssets is not empty %}
+  {% set assetRows = [] %}
+  {% for asset in relatedAssets %}
+    {% set assetRows = assetRows|merge([{
+      filename: '<a href="' ~ asset.cpEditUrl ~ '">' ~ asset.filename ~ '</a>',
+      kind: asset.kind|title,
+      size: asset.size|filesize,
+      uploaded: asset.dateCreated|date('short')
+    }]) %}
+  {% endfor %}
+
+  {% set assetColumns = [
+    {label: 'Filename', key: 'filename'},
+    {label: 'Type', key: 'kind'},
+    {label: 'Size', key: 'size'},
+    {label: 'Uploaded', key: 'uploaded'}
+  ] %}
+
+  {% include 'contacts/contacts/_relations-table' with {
+    title: 'Related Files',
+    columns: assetColumns,
+    rows: assetRows
+  } %}
+{% endif %}

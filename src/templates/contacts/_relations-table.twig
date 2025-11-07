@@ -1,0 +1,164 @@
+{#
+/**
+ * Simple Relations Table Template
+ *
+ * Displays a simple, flexible table for showing relations on a contact/user detail page.
+ *
+ * @param string title - Table heading/title
+ * @param array columns - Array of column definitions: [{label: 'Column Name', key: 'dataKey', link: true|false, type: 'text'}, ...]
+ * @param array rows - Array of data rows (can be elements or arrays)
+ * @param string|null emptyMessage - Message to show when no rows (default: "No items found.")
+ * @param bool showCount - Show count in title (default: true)
+ *
+ * Column Definition Properties:
+ * - label (string): Column header label
+ * - key (string): Key to access in row data (e.g., 'title', 'dateCreated', 'status')
+ * - link (bool): If true, wraps value in link using element.cpEditUrl (default: false)
+ *                Links to cellValue.cpEditUrl if available, otherwise row.cpEditUrl
+ * - type (string): Format type for the cell value (default: 'text')
+ *                  Options: 'text', 'date', 'datetime', 'timestamp', 'relation', 'dropdown'
+ *
+ * Supported Types:
+ * - 'text' (default): Renders value as-is (supports HTML via |raw)
+ * - 'date': Formats date using |date('short')
+ * - 'datetime': Formats datetime using |datetime('short')
+ * - 'timestamp': Formats timestamp using |timestamp
+ * - 'relation': Resolves relation field using .status(null).one().title (automatically linked)
+ * - 'dropdown': Gets the label from dropdown field value (value.label)
+ *
+ * Basic Example (pass elements directly):
+ *
+ * {% set columns = [
+ *   {label: 'Title', key: 'title', link: true},
+ *   {label: 'Status', key: 'status'},
+ *   {label: 'Created', key: 'dateCreated', type: 'date'}
+ * ] %}
+ *
+ * {% include '_contacts/_relations/_relations-table' with {
+ *   title: 'Registrations',
+ *   columns: columns,
+ *   rows: entries
+ * } %}
+ *
+ * Advanced Example (with custom formatting):
+ *
+ * {% set formattedRows = [] %}
+ * {% for entry in entries %}
+ *   {% set formattedRows = formattedRows|merge([{
+ *     title: entry.title,
+ *     status: '<span class="status ' ~ entry.statusColor ~ '"></span> ' ~ entry.status,
+ *     date: entry.dateCreated
+ *   }]) %}
+ * {% endfor %}
+ *
+ * {% set columns = [
+ *   {label: 'Title', key: 'title', link: true},
+ *   {label: 'Status', key: 'status'},
+ *   {label: 'Date', key: 'date', type: 'date'}
+ * ] %}
+ *
+ * {% include 'contacts/_relations-table' with {
+ *   title: 'Entries',
+ *   columns: columns,
+ *   rows: formattedRows
+ * } %}
+ */
+#}
+
+{% set title = title ?? 'Relations' %}
+{% set columns = columns ?? [] %}
+{% set rows = rows ?? [] %}
+{% set emptyMessage = emptyMessage ?? 'No items found.'|t('contacts') %}
+{% set formater = craft.app.formatter %}
+
+<div class="field">
+    <div class="heading">
+        <label>
+            {{ title|t('app') }}
+        </label>
+    </div>
+    <div class="input">
+        {% if rows is not empty %}
+            <div class="tableview">
+                <table class="data fullwidth">
+                    <thead>
+                    <tr>
+                        {% for column in columns %}
+                            <th scope="col">{{ column.label|t('app') }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            {% for column in columns %}
+                                {% set cellValue = attribute(row, column.key) %}
+                                {% set columnType = column.type ?? 'text' %}
+                                {% set useLink = column.link ?? false %}
+                                {% set linkUrl = null %}
+
+                                {# Apply type-based formatting #}
+                                {% set formattedValue = cellValue %}
+                                {% set relatedElement = null %}
+
+                                {% if cellValue %}
+                                    {% switch columnType %}
+                                    {% case 'date' %}
+                                        {% set formattedValue = formater.asDate(cellValue, 'short') %}
+                                    {% case 'datetime' %}
+                                        {% set formattedValue = formater.asDateTime(cellValue, 'short') %}
+                                    {% case 'timestamp' %}
+                                        {% set formattedValue = cellValue|timestamp %}
+                                    {% case 'relation' %}
+                                        {% set relatedElement = cellValue.status(null).one() %}
+                                        {% set formattedValue = relatedElement ? relatedElement.title : '-' %}
+                                    {% case 'dropdown' %}
+                                        {% set formattedValue = cellValue.label ?? cellValue %}
+                                    {% default %}
+                                        {# 'text' type or any other: render as-is #}
+                                        {% set formattedValue = cellValue %}
+                                    {% endswitch %}
+                                {% endif %}
+
+                                {# Determine link URL if link property is true or type is relation #}
+                                {% if useLink or (columnType == 'relation' and relatedElement) %}
+                                    {# For relation types, use the related element's URL #}
+                                    {% if columnType == 'relation' and relatedElement and relatedElement.cpEditUrl is defined %}
+                                        {% set linkUrl = relatedElement.cpEditUrl %}
+                                        {# Check if cellValue has cpEditUrl (it's an element) #}
+                                    {% elseif cellValue.cpEditUrl is defined %}
+                                        {% set linkUrl = cellValue.cpEditUrl %}
+                                        {# Otherwise check if row itself has cpEditUrl #}
+                                    {% elseif row.cpEditUrl is defined %}
+                                        {% set linkUrl = row.cpEditUrl %}
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if loop.first %}
+                                    <th scope="row">
+                                        {% if linkUrl %}
+                                            <a href="{{ linkUrl }}" target="_blank">{{ formattedValue }}</a>
+                                        {% else %}
+                                            {{ formattedValue|raw }}
+                                        {% endif %}
+                                    </th>
+                                {% else %}
+                                    <td>
+                                        {% if linkUrl %}
+                                            <a href="{{ linkUrl }}" target="_blank">{{ formattedValue }}</a>
+                                        {% else %}
+                                            {{ formattedValue|raw }}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="zilch small">{{ emptyMessage }}</p>
+        {% endif %}
+    </div>
+</div>
