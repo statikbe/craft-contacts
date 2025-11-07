@@ -6,11 +6,12 @@
     {{ csrfInput() }}
     {{ actionInput('contacts/contacts/create') }}
     {{ redirectInput(redirect) }}
-
-    <h2>{{ 'Contact fields' | t('contacts') }}</h2>
-
-    {{ contact.getFieldLayout().createForm(contact).render() | raw }}
-
+    <div id="fields">
+    {% for tab in form.tabs %}
+        {{ tab.getContent() | raw }}
+    {% endfor %}
+    </div>
+    <hr>
     <h2>{{ 'Extra' | t('contacts') }}</h2>
 
     {{ forms.checkBoxField({

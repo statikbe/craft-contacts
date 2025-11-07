@@ -5,6 +5,7 @@ namespace statikbe\contacts\controllers;
 use Craft;
 use craft\elements\User;
 use craft\helpers\Cp;
+use craft\helpers\Json;
 use craft\web\assets\cp\CpAsset;
 use craft\web\Controller;
 use statikbe\contacts\Contacts;
@@ -97,6 +98,7 @@ class ContactsController extends Controller
      */
     public function actionNew(): Response
     {
+        $settings = Contacts::getInstance()->getSettings();
         $contact = new Contact();
         $fieldHandles = $this->request->getQueryParam('fieldHandles', []);
         $fieldValues = $this->request->getQueryParam('fieldValues', []);
@@ -114,8 +116,20 @@ class ContactsController extends Controller
             }
         }
 
+        // Get the User field layout and filter tabs based on settings
+        $layout = Craft::$app->getFields()->getLayoutByType(User::class);
+        $allowedTabs = collect($layout->tabs)->filter(function ($tab) use ($settings) {
+            return in_array($tab->uid, $settings->visibleTabs);
+        })->all();
+
+        $layout->setTabs($allowedTabs);
+        $form = $layout->createForm($contact);
+
         return $this->asCpScreen()
-            ->contentTemplate('contacts/contacts/_new', ['contact' => $contact])
+            ->contentTemplate('contacts/contacts/_new', [
+                'contact' => $contact,
+                'form' => $form,
+            ])
             ->title(Craft::t('contacts', 'New Contact'));
     }
 
@@ -170,13 +184,15 @@ class ContactsController extends Controller
                     return $this->asFailure(Craft::t('contacts', 'User was prepared for activation but the activation email could not be sent. Check your email settings.'));
                 }
             }
+            Craft::$app->getCache()->flush();
 
             return $this->asSuccess(Craft::t('contacts', 'Contact created successfully.'), [
                 'redirect' => 'contacts/' . $user->id,
             ]);
-        } else {
-            return $this->asFailure(Craft::t('contacts', 'Could not create contact.'));
         }
+
+        Craft::error(Json::encode($user->getErrors()), __METHOD__);
+        return $this->asFailure(Craft::t('contacts', 'Could not create contact.'));
     }
 
     /**
