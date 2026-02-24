@@ -109,3 +109,31 @@ This will display:
 - **Date**: Formatted date (e.g., "Jan 15, 2024")
 
 All links open in a new tab to preserve the contact detail page.
+
+### Pagination Support
+
+For large datasets, enable pagination by passing an element query and setting `paginate: true`:
+
+```twig
+{% set columns = [
+    {label: 'Registration', key: 'title', link: true},
+    {label: 'Course', key: 'course', type: 'relation'},
+    {label: 'Date', key: 'dateCreated', type: 'date'}
+] %}
+
+{% include 'contacts/_relations-table' with {
+    title: 'Registrations',
+    columns: columns,
+    rows: craft.entries().section('registrations').relatedTo(element),  {# Pass query, not .all() #}
+    paginate: true,
+    pageSize: 20
+} %}
+```
+
+**Important**: When using pagination, pass the element query directly (don't call `.all()`). The template will handle executing the query with pagination.
+
+**Pagination Parameters:**
+- **`paginate`** (boolean): Enable pagination (default: `false`)
+- **`pageSize`** (integer): Items per page (default: `20`)
+
+Pagination works with both element queries and arrays. The template automatically uses Craft's native pagination UI for queries and a custom implementation for arrays. Array pagination uses the `relationPage` URL parameter to avoid conflicts with CP routing.

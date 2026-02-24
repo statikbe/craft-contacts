@@ -1,23 +1,41 @@
-{# Get related registrations for this contact #}
-{% set relatedEntries = craft.entries()
+{#
+ * Example: Related Registrations with Pagination
+ *
+ * This example shows how to display related registrations for a contact
+ * with pagination enabled.
+ #}
+
+{% set columns = [
+    {label: 'Title', key: 'title', link: true},
+    {label: 'Course', key: 'course', type: 'relation'},
+    {label: 'Status', key: 'registrationStatus', type: 'dropdown'},
+    {label: 'Created', key: 'dateCreated', type: 'date'},
+] %}
+
+{# Example 1: With Pagination (for large datasets) #}
+{% include 'contacts/_relations-table' with {
+    title: 'Registrations',
+    columns: columns,
+    rows: craft.entries()
+        .section('registrations')
+        .relatedTo(element)
+        .site('*')
+        .status(null),  {# Pass query, not .all() #}
+    paginate: true,
+    pageSize: 20
+} %}
+
+{# Example 2: Without Pagination (for small datasets) #}
+{# Uncomment to use:
+{% set registrations = craft.entries()
     .section('registrations')
-    .relatedTo(element.user)
+    .relatedTo(element)
     .limit(10)
-    .site('*')
-    .status(null)
     .all() %}
 
-{% if relatedEntries is not empty %}
-  {% set columns = [
-      {label: 'Title', key: 'title', link: true},
-      {label: 'Course', key: 'course', type: 'relation'},
-      {label: 'Status', key: 'registationStatus', type: 'dropdown'},
-      {label: 'Created', key: 'dateCreated', type: 'date'},
-  ] %}
-
-  {% include '_contacts/_relations/_relations-table' with {
-      title: 'Registrations',
-      columns: columns,
-      rows: relatedEntries
-  } %}
-{% endif %}
+{% include 'contacts/_relations-table' with {
+    title: 'Recent Registrations',
+    columns: columns,
+    rows: registrations
+} %}
+#}

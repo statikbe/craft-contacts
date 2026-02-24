@@ -6,9 +6,10 @@
  *
  * @param string title - Table heading/title
  * @param array columns - Array of column definitions: [{label: 'Column Name', key: 'dataKey', link: true|false, type: 'text'}, ...]
- * @param array rows - Array of data rows (can be elements or arrays)
+ * @param array|QueryInterface rows - Element query or array of data rows
  * @param string|null emptyMessage - Message to show when no rows (default: "No items found.")
- * @param bool showCount - Show count in title (default: true)
+ * @param bool paginate - Enable pagination (default: false)
+ * @param int pageSize - Items per page when pagination enabled (default: 20)
  *
  * Column Definition Properties:
  * - label (string): Column header label
@@ -26,7 +27,7 @@
  * - 'relation': Resolves relation field using .status(null).one().title (automatically linked)
  * - 'dropdown': Gets the label from dropdown field value (value.label)
  *
- * Basic Example (pass elements directly):
+ * Basic Example (without pagination):
  *
  * {% set columns = [
  *   {label: 'Title', key: 'title', link: true},
@@ -34,10 +35,20 @@
  *   {label: 'Created', key: 'dateCreated', type: 'date'}
  * ] %}
  *
- * {% include '_contacts/_relations/_relations-table' with {
+ * {% include 'contacts/_relations-table' with {
  *   title: 'Registrations',
  *   columns: columns,
- *   rows: entries
+ *   rows: entries.all()
+ * } %}
+ *
+ * Example with Pagination (Element Query):
+ *
+ * {% include 'contacts/_relations-table' with {
+ *   title: 'Registrations',
+ *   columns: columns,
+ *   rows: craft.entries().relatedTo(element),  {# Pass query, not .all() #}
+ *   paginate: true,
+ *   pageSize: 20
  * } %}
  *
  * Advanced Example (with custom formatting):
@@ -70,6 +81,38 @@
 {% set rows = rows ?? [] %}
 {% set emptyMessage = emptyMessage ?? 'No items found.'|t('contacts') %}
 {% set formater = craft.app.formatter %}
+{% set paginate = paginate ?? false %}
+{% set pageSize = pageSize ?? 20 %}
+
+{# Determine if rows is an element query or array #}
+{% set isQuery = rows is iterable and rows.limit is defined %}
+
+{# Set up pagination variables #}
+{% if paginate and not isQuery %}
+    {# Array Pagination using ArrayDataProvider #}
+    {% set dataProvider = create({
+        'class': 'yii\\data\\ArrayDataProvider',
+        'allModels': rows,
+        'pagination': {
+            'pageSize': pageSize,
+            'pageParam': 'relationPage'
+        }
+    }) %}
+    {% set displayRows = dataProvider.getModels() %}
+    {% set pagination = dataProvider.getPagination() %}
+    {% set showPagination = true %}
+{% elseif not paginate %}
+    {# No pagination #}
+    {% set displayRows = rows %}
+    {% set showPagination = false %}
+{% endif %}
+
+{# For element queries with pagination, open paginate tag #}
+{% if paginate and isQuery %}
+    {% paginate rows.limit(pageSize) as pageInfo, paginatedRows %}
+    {% set displayRows = paginatedRows %}
+    {% set showPagination = true %}
+{% endif %}
 
 <div class="field">
     <div class="heading">
@@ -78,7 +121,7 @@
         </label>
     </div>
     <div class="input">
-        {% if rows is not empty %}
+        {% if displayRows is not empty %}
             <div class="tableview">
                 <table class="data fullwidth">
                     <thead>
@@ -89,7 +132,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for row in rows %}
+                    {% for row in displayRows %}
                         <tr>
                             {% for column in columns %}
                                 {% set cellValue = attribute(row, column.key) %}
@@ -157,8 +200,72 @@
                     </tbody>
                 </table>
             </div>
+
+            {# Pagination UI #}
+            {% if showPagination %}
+                <div id="footer" class="flex">
+                    <div id="count-container" class="light flex-grow">
+                        {% if isQuery %}
+                            {# Element Query: Use Craft's built-in pagination #}
+                            {% include '_includes/pagination' with {
+                                'pageInfo': pageInfo,
+                                'itemLabel': 'item'|t('app'),
+                                'itemsLabel': 'items'|t('app')
+                            } %}
+                        {% else %}
+                            {# Array: Build custom pagination UI #}
+                            {% set currentPage = pagination.getPage() + 1 %}
+                            {% set totalPages = pagination.getPageCount() %}
+                            {% set totalCount = dataProvider.getTotalCount() %}
+                            {% set first = ((currentPage - 1) * pageSize) + 1 %}
+                            {% set last = min(currentPage * pageSize, totalCount) %}
+
+                            <div class="flex pagination">
+                                <div class="page-info">
+                                    {{ "{first, number}-{last, number} of {total, number} {total, plural, =1{item} other{items}}"|t('app', {
+                                        first: first,
+                                        last: last,
+                                        total: totalCount,
+                                    }) }}
+                                </div>
+
+                                <nav class="flex" aria-label="{{ 'Pagination'|t('app') }}">
+                                    {% if currentPage > 1 %}
+                                        <a class="page-link prev-page"
+                                           href="{{ url(craft.app.request.url, {relationPage: currentPage - 1}) }}"
+                                           title="{{ 'Previous Page'|t('app') }}"
+                                           aria-label="{{ 'Previous Page'|t('app') }}"></a>
+                                    {% else %}
+                                        <button class="page-link prev-page disabled"
+                                                title="{{ 'Previous Page'|t('app') }}"
+                                                aria-label="{{ 'Previous Page'|t('app') }}"
+                                                role="button" disabled></button>
+                                    {% endif %}
+
+                                    {% if currentPage < totalPages %}
+                                        <a class="page-link next-page"
+                                           href="{{ url(craft.app.request.url, {relationPage: currentPage + 1}) }}"
+                                           title="{{ 'Next Page'|t('app') }}"
+                                           aria-label="{{ 'Next Page'|t('app') }}"></a>
+                                    {% else %}
+                                        <button class="page-link next-page disabled"
+                                                title="{{ 'Next Page'|t('app') }}"
+                                                aria-label="{{ 'Next Page'|t('app') }}"
+                                                role="button" disabled></button>
+                                    {% endif %}
+                                </nav>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         {% else %}
             <p class="zilch small">{{ emptyMessage }}</p>
         {% endif %}
     </div>
 </div>
+
+{# Close paginate tag if it was opened for element queries #}
+{% if paginate and isQuery %}
+    {% endpaginate %}
+{% endif %}
