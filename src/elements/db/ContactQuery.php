@@ -39,6 +39,13 @@ class ContactQuery extends UserQuery
      *
      * @return bool
      */
+    protected function cacheTags(): array
+    {
+        return [
+            'element::craft\elements\User::*',
+        ];
+    }
+
     protected function beforePrepare(): bool
     {
         // Apply usergroup filtering from plugin settings
