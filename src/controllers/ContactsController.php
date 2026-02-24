@@ -184,8 +184,6 @@ class ContactsController extends Controller
                     return $this->asFailure(Craft::t('contacts', 'User was prepared for activation but the activation email could not be sent. Check your email settings.'));
                 }
             }
-            Craft::$app->getCache()->flush();
-
             return $this->asSuccess(Craft::t('contacts', 'Contact created successfully.'), [
                 'redirect' => 'contacts/' . $user->id,
             ]);
