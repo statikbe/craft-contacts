@@ -132,18 +132,18 @@ class FilterModel extends Model
             return false;
         }
 
-        // Owner can always edit
+        // Shared filters can be edited by anyone
+        if ($this->shared) {
+            return true;
+        }
+
+        // Owner can always edit their own filters
         if ($this->ownerId === $user->id) {
             return true;
         }
 
         // Admin can edit any filter
-        if ($user->admin) {
-            return true;
-        }
-
-        // Check if user has permission to manage shared filters
-        return $this->shared && $user->can('manageSharedContactFilters');
+        return (bool)$user->admin;
     }
 
     /**
