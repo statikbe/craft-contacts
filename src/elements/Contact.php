@@ -101,13 +101,26 @@ class Contact extends User
     }
 
     /**
-     * Defines the table attributes for this element type
+     * Defines the table attributes for this element type.
+     *
+     * Extends the standard User attributes with custom fields from the User
+     * field layout so they appear as selectable columns in the contact index.
      *
      * @return array
      */
     protected static function defineTableAttributes(): array
     {
-        return User::defineTableAttributes();
+        $attributes = User::defineTableAttributes();
+
+        $fieldLayout = Craft::$app->getFields()->getLayoutByType(User::class);
+        if ($fieldLayout) {
+            foreach ($fieldLayout->getCustomFieldElements() as $layoutElement) {
+                $field = $layoutElement->getField();
+                $attributes['field:' . $field->uid] = ['label' => Craft::t('site', $field->name)];
+            }
+        }
+
+        return $attributes;
     }
 
     /**
