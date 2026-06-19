@@ -260,20 +260,20 @@ class ContactsController extends Controller
             throw new \yii\web\BadRequestHttpException('No contacts selected for export.');
         }
 
-        // Get the contacts
-        $contacts = Contact::find()
+        // Build the contacts query. The query is streamed in batches by the
+        // export service so it is not materialized into memory here.
+        $contactsQuery = Contact::find()
             ->id($contactIds)
             ->status(null)
-            ->orderBy(['lastName' => SORT_ASC])
-            ->all();
+            ->orderBy(['lastName' => SORT_ASC]);
 
-        if (empty($contacts)) {
+        if (!$contactsQuery->exists()) {
             throw new \yii\web\NotFoundHttpException('No contacts found for export.');
         }
 
         // Use the export service to generate and download the file
         $exportService = Contacts::getInstance()->exportService;
-        $success = $exportService->exportAndDownload($contacts);
+        $success = $exportService->exportAndDownload($contactsQuery);
 
         if (!$success) {
             throw new \yii\web\ServerErrorHttpException('Failed to generate export file.');
@@ -290,17 +290,18 @@ class ContactsController extends Controller
     {
         $this->requirePostRequest();
 
-        // Get all contacts
-        $contacts = Contact::find()->status(null)->orderBy(['lastName' => SORT_ASC])->all();
+        // Build the contacts query. The query is streamed in batches by the
+        // export service so it is not materialized into memory here.
+        $contactsQuery = Contact::find()->status(null)->orderBy(['lastName' => SORT_ASC]);
 
-        if (empty($contacts)) {
+        if (!$contactsQuery->exists()) {
             throw new \yii\web\NotFoundHttpException('No contacts found for export.');
         }
 
         // Use the export service to generate and download the file
         $exportService = Contacts::getInstance()->exportService;
         $filename = 'all_contacts_export_' . date('Y-m-d_H-i-s') . '.xlsx';
-        $success = $exportService->exportAndDownload($contacts, $filename);
+        $success = $exportService->exportAndDownload($contactsQuery, $filename);
 
         if (!$success) {
             throw new \yii\web\ServerErrorHttpException('Failed to generate export file.');
