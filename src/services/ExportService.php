@@ -97,7 +97,11 @@ class ExportService extends Component
             // what caused the export to exhaust memory for large contact bases).
             if ($contacts instanceof ElementQueryInterface) {
                 // QueryBatcher fetches BATCH_SIZE populated elements at a time via
-                // offset/limit. It relies on the query having an orderBy clause.
+                // offset/limit, so each query only ever pulls BATCH_SIZE rows into
+                // memory. This is deliberately used over Db::each(), which buffers
+                // the whole result set client-side unless `useUnbufferedConnections`
+                // is enabled (off by default). It relies on the query having an
+                // orderBy clause, which the controllers set.
                 $batcher = new QueryBatcher($contacts);
                 $offset = 0;
 
@@ -109,7 +113,15 @@ class ExportService extends Component
                     }
 
                     $offset += self::BATCH_SIZE;
-                } while (!empty($slice));
+
+                    // Craft elements hold circular references to their field values,
+                    // which PHP's refcounting can't free on its own. Drop the batch
+                    // and run the cycle collector so memory doesn't creep up over a
+                    // large export.
+                    $count = count($slice);
+                    unset($slice);
+                    gc_collect_cycles();
+                } while ($count === self::BATCH_SIZE);
             } else {
                 foreach ($contacts as $contact) {
                     $writer->addRow($this->buildContactRow($contact, $customFields));

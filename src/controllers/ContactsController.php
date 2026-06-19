@@ -4,6 +4,7 @@ namespace statikbe\contacts\controllers;
 
 use Craft;
 use craft\elements\User;
+use craft\helpers\App;
 use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\web\assets\cp\CpAsset;
@@ -253,6 +254,10 @@ class ContactsController extends Controller
     {
         $this->requirePostRequest();
 
+        // Exports can run long and use significant memory; lift the PHP time and
+        // memory limits for this request.
+        App::maxPowerCaptain();
+
         // Get the contact IDs from the request
         $contactIds = Craft::$app->getRequest()->getBodyParam('contactId', []);
 
@@ -289,6 +294,10 @@ class ContactsController extends Controller
     public function actionExportAllXlsx(): Response
     {
         $this->requirePostRequest();
+
+        // Exports can run long and use significant memory; lift the PHP time and
+        // memory limits for this request.
+        App::maxPowerCaptain();
 
         // Build the contacts query. The query is streamed in batches by the
         // export service so it is not materialized into memory here.
