@@ -97,7 +97,7 @@ class Contact extends User
      */
     public static function createCondition(): ElementConditionInterface
     {
-        return Craft::createObject(UserCondition::class, [static::class]);
+        return Craft::createObject(UserCondition::class, [User::class]);
     }
 
     /**
