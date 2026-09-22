@@ -26,3 +26,12 @@
         <a href="{{ url('contacts') }}" class="btn">{{ 'Cancel'|t('app') }}</a>
     </div>
 </form>
+
+{% js %}
+    (function() {
+        var emailInput = document.querySelector('#fields input[name="email"]');
+        if (emailInput) {
+            emailInput.setAttribute('required', 'required');
+        }
+    })();
+{% endjs %}
