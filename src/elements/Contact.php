@@ -324,6 +324,19 @@ class Contact extends User
         return $attributes;
     }
 
+    /**
+     * Also invalidates cached User queries (e.g. the Users index) when a
+     * contact is saved, since contacts are users.
+     *
+     * @return array
+     */
+    protected function cacheTags(): array
+    {
+        return [
+            sprintf('element::%s::*', User::class),
+        ];
+    }
+
     public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {

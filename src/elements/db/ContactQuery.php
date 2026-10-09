@@ -3,6 +3,8 @@
 namespace statikbe\contacts\elements\db;
 
 use craft\elements\db\UserQuery;
+use craft\elements\User;
+use statikbe\contacts\elements\Contact;
 use statikbe\contacts\Contacts;
 
 /**
@@ -31,6 +33,23 @@ class ContactQuery extends UserQuery
     }
 
     /**
+     * Returns the cache tags for this query
+     *
+     * Contacts are users, so cached contact queries (e.g. the element index)
+     * must be invalidated whenever a user is saved, whether it was saved as a
+     * User or as a Contact.
+     *
+     * @return array
+     */
+    protected function cacheTags(): array
+    {
+        return [
+            sprintf('element::%s::*', User::class),
+            sprintf('element::%s::*', Contact::class),
+        ];
+    }
+
+    /**
      * Applies the filter condition before preparing the query
      *
      * This method is called automatically by Craft before the query is executed.
@@ -39,13 +58,6 @@ class ContactQuery extends UserQuery
      *
      * @return bool
      */
-    protected function cacheTags(): array
-    {
-        return [
-            'element::craft\elements\User::*',
-        ];
-    }
-
     protected function beforePrepare(): bool
     {
         // Apply usergroup filtering from plugin settings
