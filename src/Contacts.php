@@ -93,11 +93,19 @@ class Contacts extends Plugin
                 ];
             })->values()->all();
 
+        $groupsByUid = collect(Craft::$app->getUserGroups()->getAllGroups())
+            ->map(function ($group) {
+                return [
+                    'label' => $group->name,
+                    'value' => $group->uid,
+                ];
+            })->values()->all();
 
         return Craft::$app->view->renderTemplate('contacts/_settings.twig', [
             'plugin' => $this,
             'tabs' => $tabs,
             'groups' => $groups,
+            'groupsByUid' => $groupsByUid,
             'settings' => $this->getSettings(),
         ]);
     }

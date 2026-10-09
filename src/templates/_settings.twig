@@ -15,8 +15,18 @@
 }) }}
 
 {{ forms.selectField({
+    label: "User group for contacts"|t('contacts'),
+    instructions: "New contacts that are not converted to a user will be assigned to this user group. Use a group without permissions."|t('contacts'),
+    id: 'contactUserGroup',
+    name: 'contactUserGroup',
+    options: [{ label: 'None'|t('contacts'), value: '' }]|merge(groupsByUid),
+    value: settings.contactUserGroup,
+    errors: settings.getErrors('contactUserGroup'),
+}) }}
+
+{{ forms.selectField({
     label: "Default user group for new contacts"|t('contacts'),
-    instructions: "New contacts will be automatically assigned to this user group."|t('contacts'),
+    instructions: "Contacts that are converted to a user will be assigned to this user group."|t('contacts'),
     id: 'defaultUserGroup',
     name: 'defaultUserGroup',
     options: [{ label: 'None'|t('contacts'), value: '' }]|merge(groups),

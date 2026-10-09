@@ -127,7 +127,9 @@ return [
     // Settings form labels
     'User groups' => 'Gebruikersgroepen',
     'Default user group for new contacts' => 'Standaard gebruikersgroep voor nieuwe contacten',
-    'New contacts will be automatically assigned to this user group.' => 'Nieuwe contacten worden automatisch toegewezen aan deze gebruikersgroep.',
+    'User group for contacts' => 'Gebruikersgroep voor contacten',
+    'New contacts that are not converted to a user will be assigned to this user group. Use a group without permissions.' => 'Nieuwe contacten die niet omgezet worden naar een gebruiker worden toegewezen aan deze gebruikersgroep. Gebruik een groep zonder rechten.',
+    'Contacts that are converted to a user will be assigned to this user group.' => 'Contacten die omgezet worden naar een gebruiker worden toegewezen aan deze gebruikersgroep.',
     'None' => 'Geen',
     'Tabs' => 'Tabbladen',
     'Select which tabs should be visible in the contact detail view.' => 'Selecteer welke tabbladen zichtbaar moeten zijn in de contactdetailweergave.',

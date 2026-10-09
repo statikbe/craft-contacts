@@ -127,7 +127,9 @@ return [
     // Settings form labels
     'User groups' => 'User groups',
     'Default user group for new contacts' => 'Default user group for new contacts',
-    'New contacts will be automatically assigned to this user group.' => 'New contacts will be automatically assigned to this user group.',
+    'User group for contacts' => 'User group for contacts',
+    'New contacts that are not converted to a user will be assigned to this user group. Use a group without permissions.' => 'New contacts that are not converted to a user will be assigned to this user group. Use a group without permissions.',
+    'Contacts that are converted to a user will be assigned to this user group.' => 'Contacts that are converted to a user will be assigned to this user group.',
     'None' => 'None',
     'Tabs' => 'Tabs',
     'Select which tabs should be visible in the contact detail view.' => 'Select which tabs should be visible in the contact detail view.',

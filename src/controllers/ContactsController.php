@@ -146,7 +146,7 @@ class ContactsController extends Controller
 
         $email = $params['email'] ?? null;
         $fullName = $params['fullName'] ?? null;
-        $convertUser = $params['convertUser'] === '1';
+        $convertUser = ($params['convertUser'] ?? null) === '1';
 
         if (!$email || !$fullName) {
             return $this->asFailure(Craft::t('contacts', 'Email and full name are required.'));
@@ -171,10 +171,11 @@ class ContactsController extends Controller
         }
 
         if (Craft::$app->getElements()->saveElement($user)) {
-            // Assign to default user group if configured
+            // Users get the default user group, plain contacts get the contact group
             $settings = Contacts::getInstance()->getSettings();
-            if ($settings->defaultUserGroup) {
-                Craft::$app->getUsers()->assignUserToGroups($user->id, [$settings->defaultUserGroup]);
+            $groupId = $convertUser ? $settings->defaultUserGroup : $settings->getContactUserGroupId();
+            if ($groupId) {
+                Craft::$app->getUsers()->assignUserToGroups($user->id, [$groupId]);
             }
 
             if ($convertUser === true) {
@@ -227,10 +228,18 @@ class ContactsController extends Controller
                 return $this->asFailure(Craft::t('contacts', 'Could not prepare user for activation: {errors}', ['errors' => $errors]));
             }
 
-            // Assign to default user group if configured
+            // Move the user from the contact group to the default user group, keeping any other groups
             $settings = Contacts::getInstance()->getSettings();
             if ($settings->defaultUserGroup) {
-                Craft::$app->getUsers()->assignUserToGroups($user->id, [$settings->defaultUserGroup]);
+                $contactGroupId = $settings->getContactUserGroupId();
+                $groupIds = collect($user->getGroups())
+                    ->map(fn($group) => $group->id)
+                    ->reject(fn($id) => $id === $contactGroupId)
+                    ->push((int)$settings->defaultUserGroup)
+                    ->unique()
+                    ->values()
+                    ->all();
+                Craft::$app->getUsers()->assignUserToGroups($user->id, $groupIds);
             }
 
             // Send activation email
