@@ -32,6 +32,12 @@
         var emailInput = document.querySelector('#fields input[name="email"]');
         if (emailInput) {
             emailInput.setAttribute('required', 'required');
+
+            // Mark the label as required the same way Craft does for required fields
+            var label = emailInput.closest('.field')?.querySelector('.heading label');
+            if (label && !label.querySelector('.required')) {
+                label.insertAdjacentHTML('beforeend', '<span class="visually-hidden">{{ 'Required'|t('app')|e('js') }}</span><span class="required" aria-hidden="true"></span>');
+            }
         }
     })();
 {% endjs %}
